@@ -2,9 +2,9 @@
 
 
 #include "Charactor_WhiteMan.h"
-#include "GameFrameWork/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFrameWork/CharacterMovementComponent.h"
 
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
@@ -22,6 +22,7 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 void ACharactor_WhiteMan::BeginPlay()
@@ -48,6 +49,7 @@ void ACharactor_WhiteMan::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAxis(TEXT("TurnUp"), this, &ACharactor_WhiteMan::TurnUp);
 	//Initialize character action
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharactor_WhiteMan::Jump);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACharactor_WhiteMan::CrouchButtonPressed);
 }
 
 void ACharactor_WhiteMan::MoveForward(float Value)
@@ -80,4 +82,28 @@ void ACharactor_WhiteMan::TurnUp(float Value)
 	AddControllerPitchInput(-Value);
 }
 
+void ACharactor_WhiteMan::CrouchButtonPressed()
+{
+	UE_LOG(LogTemp, Log, TEXT("CrouchPressed!"));
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Crouch();
+	}
+}
 
+void ACharactor_WhiteMan::EquipButtonPressed()
+{
+
+}
+
+void ACharactor_WhiteMan::AimButtonPressed()
+{
+}
+
+void ACharactor_WhiteMan::AimButtonReleased()
+{
+}

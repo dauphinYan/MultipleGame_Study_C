@@ -24,6 +24,11 @@ protected:
 	void TurnLeft(float Value);
 	void TurnUp(float Value);
 
+	void CrouchButtonPressed();
+	void EquipButtonPressed();
+	void AimButtonPressed();
+	void AimButtonReleased();
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	class USpringArmComponent* CameraSpringArm;
