@@ -35,4 +35,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	class UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCombatComponent* Combat;
+
+	UPROPERTY(VisibleAnywhere)
+	class AWeapon* OverlapWeapon;
 };

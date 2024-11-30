@@ -5,6 +5,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFrameWork/CharacterMovementComponent.h"
+#include "MultipleGame_Study_C/Component/CombatComponent.h"
+#include "MultipleGame_Study_C/Weapon/Weapon.h"
 
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
@@ -23,6 +25,9 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true);
 }
 
 void ACharactor_WhiteMan::BeginPlay()
@@ -97,7 +102,13 @@ void ACharactor_WhiteMan::CrouchButtonPressed()
 
 void ACharactor_WhiteMan::EquipButtonPressed()
 {
-
+	if (Combat)
+	{
+		if (HasAuthority())
+		{
+			Combat->EquipWeapon(OverlapWeapon);
+		}
+	}
 }
 
 void ACharactor_WhiteMan::AimButtonPressed()

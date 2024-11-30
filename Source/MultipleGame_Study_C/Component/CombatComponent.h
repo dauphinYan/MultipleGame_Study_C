@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+class AWeapon;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MULTIPLEGAME_STUDY_C_API UCombatComponent : public UActorComponent
@@ -13,16 +14,18 @@ class MULTIPLEGAME_STUDY_C_API UCombatComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UCombatComponent();
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
+	friend class ACharactor_WhiteMan;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	void EquipWeapon(AWeapon* WeaponToEquip);
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	class ACharactor_WhiteMan* Character_WhiteMan;
+
+	UPROPERTY(VisibleAnywhere)
+	AWeapon* EquippedWeapon;
 };
