@@ -23,6 +23,7 @@ class MULTIPLEGAME_STUDY_C_API AWeapon : public AActor
 public:
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void ShowPickupWidget(bool bShow);
 
@@ -45,4 +46,13 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	class UWidgetComponent* PickupWidget;
+
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon")
+	EWeaponState WeaponState;
+
+	UFUNCTION()
+	void OnRep_WeaponState();
+
+public:
+	FORCEINLINE void SetWeaponState(EWeaponState State);
 };

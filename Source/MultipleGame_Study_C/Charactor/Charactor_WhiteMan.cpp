@@ -7,6 +7,7 @@
 #include "GameFrameWork/CharacterMovementComponent.h"
 #include "MultipleGame_Study_C/Component/CombatComponent.h"
 #include "MultipleGame_Study_C/Weapon/Weapon.h"
+#include "Net/UnrealNetwork.h"
 
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
@@ -55,6 +56,23 @@ void ACharactor_WhiteMan::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	//Initialize character action
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharactor_WhiteMan::Jump);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACharactor_WhiteMan::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ACharactor_WhiteMan::EquipButtonPressed);
+}
+
+void ACharactor_WhiteMan::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(ACharactor_WhiteMan, OverlappingWeapon, COND_OwnerOnly);
+}
+
+void ACharactor_WhiteMan::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (Combat)
+	{
+		Combat->Character_WhiteMan = this;
+	}
 }
 
 void ACharactor_WhiteMan::MoveForward(float Value)
@@ -107,6 +125,18 @@ void ACharactor_WhiteMan::EquipButtonPressed()
 		{
 			Combat->EquipWeapon(OverlappingWeapon);
 		}
+		else
+		{
+			Server_EquipButtonPressed();
+		}
+	}
+}
+
+void ACharactor_WhiteMan::Server_EquipButtonPressed_Implementation()
+{
+	if (Combat)
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
 	}
 }
 
@@ -116,6 +146,18 @@ void ACharactor_WhiteMan::AimButtonPressed()
 
 void ACharactor_WhiteMan::AimButtonReleased()
 {
+}
+
+void ACharactor_WhiteMan::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
 }
 
 void ACharactor_WhiteMan::SetOverlappingWeapon(AWeapon* Weapon)

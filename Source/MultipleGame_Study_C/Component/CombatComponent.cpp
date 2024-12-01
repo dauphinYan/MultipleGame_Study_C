@@ -6,11 +6,11 @@
 #include "MultipleGame_Study_C/Weapon/Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
-
 	PrimaryComponentTick.bCanEverTick = false;
 
 }
@@ -35,12 +35,18 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 }
 
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+}
+
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 {
-	if (Character_WhiteMan != nullptr || WeaponToEquip == nullptr)
+	if (Character_WhiteMan == nullptr || WeaponToEquip == nullptr)
 		return;
 	EquippedWeapon = WeaponToEquip;
-	//EquippedWeapon->SetWeaponstate
+	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	const USkeletalMeshSocket* HandRSocket = Character_WhiteMan->GetMesh()->GetSocketByName(FName("hand_r_socket"));
 	if (HandRSocket)
 	{
@@ -49,6 +55,13 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	EquippedWeapon->SetOwner(Character_WhiteMan);
 	Character_WhiteMan->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character_WhiteMan->bUseControllerRotationYaw = true;
-
 }
 
+void UCombatComponent::OnRep_EquippedWeapon()
+{
+	if (EquippedWeapon && Character_WhiteMan)
+	{
+		Character_WhiteMan->GetCharacterMovement()->bOrientRotationToMovement = false;
+		Character_WhiteMan->bUseControllerRotationYaw = true;
+	}
+}
