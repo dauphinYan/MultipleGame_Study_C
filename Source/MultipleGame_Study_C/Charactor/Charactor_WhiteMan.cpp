@@ -89,7 +89,6 @@ void ACharactor_WhiteMan::TurnUp(float Value)
 
 void ACharactor_WhiteMan::CrouchButtonPressed()
 {
-	UE_LOG(LogTemp, Log, TEXT("CrouchPressed!"));
 	if (bIsCrouched)
 	{
 		UnCrouch();
