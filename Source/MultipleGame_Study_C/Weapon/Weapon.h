@@ -24,7 +24,7 @@ public:
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
 
-	//void ShowPickupWidget(bool bShow);
+	void ShowPickupWidget(bool bShow);
 
 protected:
 	virtual void BeginPlay() override;
@@ -32,7 +32,6 @@ protected:
 	// 重叠开始时调用
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 	// 重叠结束时调用
 	UFUNCTION()
 	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
@@ -41,6 +40,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	class USphereComponent* Sphere;
 
-	//UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	//USkeletalMeshComponent* WeaponMesh;
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	USkeletalMeshComponent* WeaponMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	class UWidgetComponent* PickupWidget;
 };

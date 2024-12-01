@@ -2,26 +2,79 @@
 
 
 #include "Weapon.h"
+#include "Components/WidgetComponent.h"
+#include "Components/SphereComponent.h"
+#include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
+#include "Net/UnrealNetwork.h"
 
-// Sets default values
 AWeapon::AWeapon()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	WeaponMesh->SetupAttachment(RootComponent);
+	SetRootComponent(WeaponMesh);
+
+	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("AreaSphere"));
+	Sphere->SetupAttachment(RootComponent);
+	Sphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
+	PickupWidget->SetupAttachment(RootComponent);
 }
 
-// Called when the game starts or when spawned
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (PickupWidget)
+	{
+		PickupWidget->SetVisibility(false);
+	}
+
+	if (HasAuthority())
+	{
+		Sphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Sphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+		Sphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnOverlapBegin);
+		Sphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnOverlapEnd);
+	}
 }
 
-// Called every frame
+void AWeapon::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ACharactor_WhiteMan* Character_WhiteMan = Cast<ACharactor_WhiteMan>(OtherActor);
+	if (Character_WhiteMan && PickupWidget)
+	{
+		Character_WhiteMan->SetOverlappingWeapon(this);
+	}
+}
+
+void AWeapon::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ACharactor_WhiteMan* Character_WhiteMan = Cast<ACharactor_WhiteMan>(OtherActor);
+	if (Character_WhiteMan && PickupWidget)
+	{
+		Character_WhiteMan->SetOverlappingWeapon(nullptr);
+	}
+}
+
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AWeapon::ShowPickupWidget(bool bShow)
+{
+	if (PickupWidget)
+	{
+		PickupWidget->SetVisibility(bShow);
+	}
 }
 

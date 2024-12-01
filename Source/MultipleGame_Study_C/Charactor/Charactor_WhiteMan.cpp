@@ -105,7 +105,7 @@ void ACharactor_WhiteMan::EquipButtonPressed()
 	{
 		if (HasAuthority())
 		{
-			Combat->EquipWeapon(OverlapWeapon);
+			Combat->EquipWeapon(OverlappingWeapon);
 		}
 	}
 }
@@ -116,4 +116,20 @@ void ACharactor_WhiteMan::AimButtonPressed()
 
 void ACharactor_WhiteMan::AimButtonReleased()
 {
+}
+
+void ACharactor_WhiteMan::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+	OverlappingWeapon = Weapon;
+	if (IsLocallyControlled())
+	{
+		if (OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+	}
 }

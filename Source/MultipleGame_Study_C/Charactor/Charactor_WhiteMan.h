@@ -40,5 +40,8 @@ private:
 	class UCombatComponent* Combat;
 
 	UPROPERTY(VisibleAnywhere)
-	class AWeapon* OverlapWeapon;
+	class AWeapon* OverlappingWeapon;
+
+public:
+	void SetOverlappingWeapon(AWeapon* Weapon);
 };
