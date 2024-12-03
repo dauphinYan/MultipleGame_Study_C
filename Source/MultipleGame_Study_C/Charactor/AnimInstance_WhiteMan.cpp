@@ -45,4 +45,7 @@ void UAnimInstance_WhiteMan::NativeUpdateAnimation(float DeltaTime)
 	const float Target = Delta.Yaw / DeltaTime;
 	const float Interp = FMath::FInterpTo(Lean, Target, DeltaTime, 6.f);
 	Lean = FMath::Clamp(Interp, -90.f, 90.f);
+
+	//AO_Yaw = Character_WhiteMan->GetAO_Yaw();
+	//AO_Pitch = Character_WhiteMan->GetAO_Pitch();
 }
