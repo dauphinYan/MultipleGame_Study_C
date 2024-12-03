@@ -8,7 +8,6 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
-// Sets default values for this component's properties
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -17,16 +16,14 @@ UCombatComponent::UCombatComponent()
 	AimWalkSpeed = 300.f;
 }
 
-
-// Called when the game starts
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//if (Character_WhiteMan)
-	//{
-	//	Character_WhiteMan->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
-	//}
+	if (Character_WhiteMan)
+	{
+		Character_WhiteMan->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	}
 
 }
 

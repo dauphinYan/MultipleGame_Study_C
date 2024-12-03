@@ -8,6 +8,7 @@
 #include "MultipleGame_Study_C/Component/CombatComponent.h"
 #include "MultipleGame_Study_C/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/CapsuleComponent.h"
 
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
@@ -29,6 +30,9 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
 void ACharactor_WhiteMan::BeginPlay()
