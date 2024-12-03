@@ -4,6 +4,7 @@
 #include "AnimInstance_WhiteMan.h"
 #include "Charactor_WhiteMan.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UAnimInstance_WhiteMan::NativeInitializeAnimation()
 {
@@ -32,4 +33,16 @@ void UAnimInstance_WhiteMan::NativeUpdateAnimation(float DeltaTime)
 	bIsCrouching = Character_WhiteMan->bIsCrouched;
 	bWeaponEquipped = Character_WhiteMan->IsWeaponEquipped();
 	bIsAiming = Character_WhiteMan->IsAiming();
+
+	FRotator AimRotation = Character_WhiteMan->GetBaseAimRotation();
+	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(Character_WhiteMan->GetVelocity());
+	FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation);
+	DeltaRotation = FMath::RInterpTo(DeltaRotation, DeltaRot, DeltaTime, 6.f);
+	YawOffset = DeltaRotation.Yaw;
+	CharactorRotationLastFrame = CharactorRotation;
+	CharactorRotation = Character_WhiteMan->GetActorRotation();
+	const FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(CharactorRotation, CharactorRotationLastFrame);
+	const float Target = Delta.Yaw / DeltaTime;
+	const float Interp = FMath::FInterpTo(Lean, Target, DeltaTime, 6.f);
+	Lean = FMath::Clamp(Interp, -90.f, 90.f);
 }
