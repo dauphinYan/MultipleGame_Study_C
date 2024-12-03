@@ -57,6 +57,8 @@ void ACharactor_WhiteMan::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharactor_WhiteMan::Jump);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACharactor_WhiteMan::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ACharactor_WhiteMan::EquipButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ACharactor_WhiteMan::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ACharactor_WhiteMan::AimButtonReleased);
 }
 
 void ACharactor_WhiteMan::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -142,10 +144,18 @@ void ACharactor_WhiteMan::Server_EquipButtonPressed_Implementation()
 
 void ACharactor_WhiteMan::AimButtonPressed()
 {
+	if (Combat)
+	{
+		Combat->SetAiming(true);
+	}
 }
 
 void ACharactor_WhiteMan::AimButtonReleased()
 {
+	if (Combat)
+	{
+		Combat->SetAiming(false);
+	}
 }
 
 void ACharactor_WhiteMan::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
@@ -174,4 +184,14 @@ void ACharactor_WhiteMan::SetOverlappingWeapon(AWeapon* Weapon)
 			OverlappingWeapon->ShowPickupWidget(true);
 		}
 	}
+}
+
+bool ACharactor_WhiteMan::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+}
+
+bool ACharactor_WhiteMan::IsAiming()
+{
+	return (Combat && Combat->bIsAiming);
 }

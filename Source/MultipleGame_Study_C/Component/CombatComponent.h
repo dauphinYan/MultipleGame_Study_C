@@ -24,6 +24,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void SetAiming(bool bAiming);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SetAiming(bool bAiming);
+
 private:
 	class ACharactor_WhiteMan* Character_WhiteMan;
 
@@ -32,4 +37,13 @@ private:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+
+	UPROPERTY(Replicated)
+	bool bIsAiming;
+
+	UPROPERTY(EditAnyWhere)
+	float BaseWalkSpeed;
+
+	UPROPERTY(EditAnyWhere)
+	float AimWalkSpeed;
 };

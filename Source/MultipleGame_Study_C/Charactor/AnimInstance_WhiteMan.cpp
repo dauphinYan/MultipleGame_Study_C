@@ -29,4 +29,7 @@ void UAnimInstance_WhiteMan::NativeUpdateAnimation(float DeltaTime)
 
 	bIsInAir = Character_WhiteMan->GetMovementComponent()->IsFalling();
 	bIsAccelerating = Character_WhiteMan->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0 ? true : false;
+	bIsCrouching = Character_WhiteMan->bIsCrouched;
+	bWeaponEquipped = Character_WhiteMan->IsWeaponEquipped();
+	bIsAiming = Character_WhiteMan->IsAiming();
 }
