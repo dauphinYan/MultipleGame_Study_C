@@ -33,6 +33,7 @@ void UAnimInstance_WhiteMan::NativeUpdateAnimation(float DeltaTime)
 	bIsCrouching = Character_WhiteMan->bIsCrouched;
 	bWeaponEquipped = Character_WhiteMan->IsWeaponEquipped();
 	bIsAiming = Character_WhiteMan->IsAiming();
+	TurningInPlace = Character_WhiteMan->GetTurningInPlace();
 
 	FRotator AimRotation = Character_WhiteMan->GetBaseAimRotation();
 	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(Character_WhiteMan->GetVelocity());

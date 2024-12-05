@@ -34,6 +34,8 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 }
 
 void ACharactor_WhiteMan::BeginPlay()
@@ -111,6 +113,18 @@ void ACharactor_WhiteMan::TurnLeft(float Value)
 void ACharactor_WhiteMan::TurnUp(float Value)
 {
 	AddControllerPitchInput(-Value);
+}
+
+void ACharactor_WhiteMan::Jump()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else
+	{
+		Super::Jump();
+	}
 }
 
 void ACharactor_WhiteMan::CrouchButtonPressed()
@@ -206,6 +220,18 @@ void ACharactor_WhiteMan::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 	if (LastWeapon)
 	{
 		LastWeapon->ShowPickupWidget(false);
+	}
+}
+
+void ACharactor_WhiteMan::TurnInPlace(float DeltaTime)
+{
+	if (AO_Yaw > 90.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Right;
+	}
+	else if (AO_Yaw < -90.f)
+	{
+		TurningInPlace = ETurningInPlace::ETIP_Left;
 	}
 }
 

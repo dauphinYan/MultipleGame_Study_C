@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "MultipleGame_Study_C/CharacterTypes/TurningInPlace.h"
 #include "Charactor_WhiteMan.generated.h"
 
 UCLASS()
@@ -25,6 +26,8 @@ protected:
 	void MoveRight(float Value);
 	void TurnLeft(float Value);
 	void TurnUp(float Value);
+
+	virtual void Jump() override;
 
 	void CrouchButtonPressed();
 	void EquipButtonPressed();
@@ -56,10 +59,14 @@ private:
 	float AO_Pitch;
 	FRotator StartAimRotation;
 
+	ETurningInPlace TurningInPlace;
+	void TurnInPlace(float DeltaTime);
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
 	bool IsAiming();
 	FORCEINLINE float GetAO_Yaw() const { return AO_Yaw; };
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
 };
