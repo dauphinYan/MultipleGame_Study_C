@@ -29,6 +29,8 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_SetAiming(bool bAiming);
 
+	void FireButtonPressed(bool bPressed);
+
 private:
 	class ACharactor_WhiteMan* Character_WhiteMan;
 
@@ -46,4 +48,6 @@ private:
 
 	UPROPERTY(EditAnyWhere)
 	float AimWalkSpeed;
+
+	bool bFireButtonPressed;
 };

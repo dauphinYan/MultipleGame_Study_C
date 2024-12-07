@@ -76,6 +76,15 @@ void UCombatComponent::SetAiming(bool bAiming)
 	}
 }
 
+void UCombatComponent::FireButtonPressed(bool bPressed)
+{
+	bFireButtonPressed = bPressed;
+	if (Character_WhiteMan&& bFireButtonPressed)
+	{
+		Character_WhiteMan->PlayFireMontage(bIsAiming);
+	}
+}
+
 void UCombatComponent::Server_SetAiming_Implementation(bool bAiming)
 {
 	this->bIsAiming = bAiming;

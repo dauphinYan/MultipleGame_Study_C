@@ -18,6 +18,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+	void PlayFireMontage(bool bIsAiming);
 
 protected:
 	virtual void BeginPlay() override;
@@ -33,6 +34,8 @@ protected:
 	void EquipButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
+	void FireButtonPressed();
+	void FireButtonReleased();
 
 	void AimOffset(float DeltaTime);
 
@@ -60,7 +63,10 @@ private:
 	FRotator StartAimRotation;
 
 	ETurningInPlace TurningInPlace;
-	void TurnInPlace(float DeltaTime);
+	void TurnInPlace(float  DeltaTime);
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	class UAnimMontage* FireMontage;
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

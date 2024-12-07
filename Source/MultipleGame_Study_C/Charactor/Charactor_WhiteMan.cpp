@@ -10,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "AnimInstance_WhiteMan.h"
 
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
@@ -67,6 +68,8 @@ void ACharactor_WhiteMan::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ACharactor_WhiteMan::EquipButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ACharactor_WhiteMan::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ACharactor_WhiteMan::AimButtonReleased);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACharactor_WhiteMan::FireButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACharactor_WhiteMan::FireButtonReleased);
 }
 
 void ACharactor_WhiteMan::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -82,6 +85,21 @@ void ACharactor_WhiteMan::PostInitializeComponents()
 	if (Combat)
 	{
 		Combat->Character_WhiteMan = this;
+	}
+}
+
+void ACharactor_WhiteMan::PlayFireMontage(bool bIsAiming)
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+		return;
+	
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && FireMontage)
+	{
+		AnimInstance->Montage_Play(FireMontage);
+		FName SectionName;
+		SectionName = bIsAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
 
@@ -175,6 +193,22 @@ void ACharactor_WhiteMan::AimButtonReleased()
 	if (Combat)
 	{
 		Combat->SetAiming(false);
+	}
+}
+
+void ACharactor_WhiteMan::FireButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->FireButtonPressed(true);
+	}
+}
+
+void ACharactor_WhiteMan::FireButtonReleased()
+{
+	if (Combat)
+	{
+		Combat->FireButtonPressed(false);
 	}
 }
 
