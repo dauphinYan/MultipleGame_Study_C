@@ -79,9 +79,13 @@ void UCombatComponent::SetAiming(bool bAiming)
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
+
+	if (EquippedWeapon == nullptr)
+		return;
 	if (Character_WhiteMan&& bFireButtonPressed)
 	{
 		Character_WhiteMan->PlayFireMontage(bIsAiming);
+		EquippedWeapon->Fire();
 	}
 }
 

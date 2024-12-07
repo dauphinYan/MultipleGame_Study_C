@@ -26,6 +26,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void ShowPickupWidget(bool bShow);
+	void Fire();
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +53,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_WeaponState();
+
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	class UAnimationAsset* FireAnimation;
 
 public:
 	FORCEINLINE void SetWeaponState(EWeaponState State);

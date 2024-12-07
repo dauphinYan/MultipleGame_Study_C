@@ -6,6 +6,8 @@
 #include "Components/SphereComponent.h"
 #include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
 #include "Net/UnrealNetwork.h"
+#include "Animation/AnimationAsset.h"
+#include "Components/SkeletalMeshComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -108,6 +110,14 @@ void AWeapon::ShowPickupWidget(bool bShow)
 	if (PickupWidget)
 	{
 		PickupWidget->SetVisibility(bShow);
+	}
+}
+
+void AWeapon::Fire()
+{
+	if (FireAnimation)
+	{
+		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
 }
 
