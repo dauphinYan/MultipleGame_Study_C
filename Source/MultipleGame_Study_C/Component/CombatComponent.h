@@ -31,6 +31,14 @@ protected:
 
 	void FireButtonPressed(bool bPressed);
 
+	UFUNCTION(Server, Reliable)
+	void Server_Fire();
+
+	UFUNCTION(NetMulticast,Reliable)
+	void Multicast_Fire();
+
+	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
+
 private:
 	class ACharactor_WhiteMan* Character_WhiteMan;
 
@@ -50,4 +58,5 @@ private:
 	float AimWalkSpeed;
 
 	bool bFireButtonPressed;
+	FVector HitTarget;
 };

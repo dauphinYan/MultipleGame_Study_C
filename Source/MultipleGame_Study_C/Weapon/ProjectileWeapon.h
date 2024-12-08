@@ -7,11 +7,18 @@
 #include "ProjectileWeapon.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MULTIPLEGAME_STUDY_C_API AProjectileWeapon : public AWeapon
 {
 	GENERATED_BODY()
-	
+
+public:
+	virtual void Fire(const FVector& HitTarget) override;
+
+
+private:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AProjectile> ProjectileClass;
 };
