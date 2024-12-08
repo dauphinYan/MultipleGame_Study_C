@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Components/ActorComponent.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -29,6 +30,8 @@ void UCombatComponent::BeginPlay()
 
 }
 
+
+
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -43,6 +46,12 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
+}
+
+void UCombatComponent::OnRegister()
+{
+	Super::OnRegister();
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -106,7 +115,6 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		CrosshairWorldPosition,
 		CrosshairWorldDirection
 	);
-	UE_LOG(LogTemp, Log, TEXT("bScreenToWorld:%d"), bScreenToWorld);
 	if (bScreenToWorld)
 	{
 		FVector Start = CrosshairWorldPosition;
@@ -119,7 +127,6 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Log, TEXT("Trace Detect!"));
 			HitTarget = TraceHitResult.ImpactPoint;
 			DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 12.f, 12, FColor::Red);
 		}

@@ -18,6 +18,7 @@ public:
 	friend class ACharactor_WhiteMan;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnRegister() override;
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
 
@@ -34,7 +35,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_Fire();
 
-	UFUNCTION(NetMulticast,Reliable)
+	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Fire();
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
