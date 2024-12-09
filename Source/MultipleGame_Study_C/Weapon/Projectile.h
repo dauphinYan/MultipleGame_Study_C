@@ -22,6 +22,7 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+	virtual void Destroyed() override;
 
 private:
 	UPROPERTY(EditAnywhere)
