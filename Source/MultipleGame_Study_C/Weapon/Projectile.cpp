@@ -48,19 +48,29 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpluse, const FHitResult& Hit)
 {
+
+	Destroy();
+}
+
+void AProjectile::Destroyed()
+{
+	Super::Destroyed();
+
 	if (ImpactParticles)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles,GetActorTransform());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
 	}
 	if (ImpactSound)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound,GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
 	}
 }
+
 
 void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
+
 
