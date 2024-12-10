@@ -28,6 +28,21 @@ public:
 	void ShowPickupWidget(bool bShow);
 	virtual void Fire(const FVector& HitTarget);
 
+	UPROPERTY(EditAnyWhere, Category = "CrossHairs")
+	class UTexture2D* CrosshairsCenter;
+
+	UPROPERTY(EditAnyWhere, Category = "CrossHairs")
+	class UTexture2D* CrosshairsLeft;
+
+	UPROPERTY(EditAnyWhere, Category = "CrossHairs")
+	class UTexture2D* CrosshairsRight;
+
+	UPROPERTY(EditAnyWhere, Category = "CrossHairs")
+	class UTexture2D* CrosshairsTop;
+
+	UPROPERTY(EditAnyWhere, Category = "CrossHairs")
+	class UTexture2D* CrosshairsBottom;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -54,11 +69,12 @@ private:
 	UFUNCTION()
 	void OnRep_WeaponState();
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Property")
+	UPROPERTY(EditAnywhere, Category = "CrossHairs")
 	class UAnimationAsset* FireAnimation;
 
-	UPROPERTY(EditAnywhere,Category="Weapon Property")
+	UPROPERTY(EditAnywhere, Category = "CrossHairs")
 	TSubclassOf<class ACasing> CasingClass;
+
 public:
 	FORCEINLINE void SetWeaponState(EWeaponState State);
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() { return WeaponMesh; }

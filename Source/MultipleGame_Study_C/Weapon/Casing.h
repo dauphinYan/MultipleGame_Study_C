@@ -15,12 +15,20 @@ public:
 	ACasing();
 	virtual void Tick(float DeltaTime) override;
 
+
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpluse, const FHitResult& Hit);
 
 private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* CasingMesh;
 
+	UPROPERTY(EditAnyWhere)
+	float ShellEjectionImpulse;
 
+	UPROPERTY(EditAnyWhere)
+	class USoundCue* ShellSound;
 };
