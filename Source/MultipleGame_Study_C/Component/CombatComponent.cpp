@@ -124,7 +124,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 
 void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 {
-	
+
 
 	if (Character_WhiteMan == nullptr || Character_WhiteMan->GetController() == nullptr)
 	{
@@ -160,6 +160,23 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 				HUDPackage.CrosshairsBottom = nullptr;
 				HUDPackage.CrosshairsTop = nullptr;
 			}
+
+			FVector2D WalkSpeedRange(0.f, Character_WhiteMan->GetCharacterMovement()->MaxWalkSpeed);
+			FVector2D VelocityMultiplierRange(0.f, 1.f);
+			FVector Velocity = Character_WhiteMan->GetVelocity();
+			Velocity.Z = 0.f;
+			CrosshairsVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
+
+			if (Character_WhiteMan->GetMovementComponent()->IsFalling())
+			{
+				CrosshairsInAirFactor = FMath::FInterpTo(CrosshairsInAirFactor, 1.0f, DeltaTime, 15.0f);
+			}
+			else
+			{
+				CrosshairsInAirFactor = FMath::FInterpTo(CrosshairsInAirFactor, 0.f, DeltaTime, 30.0f);
+			}
+
+			HUDPackage.CrosshairsSpread = CrosshairsVelocityFactor + CrosshairsInAirFactor;
 			HUD->SetHUDPackage(HUDPackage);
 		}
 	}

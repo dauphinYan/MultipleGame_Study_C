@@ -63,4 +63,7 @@ private:
 	float AimWalkSpeed;
 
 	bool bFireButtonPressed;
+
+	float CrosshairsVelocityFactor;
+	float CrosshairsInAirFactor = 0.f;
 };
