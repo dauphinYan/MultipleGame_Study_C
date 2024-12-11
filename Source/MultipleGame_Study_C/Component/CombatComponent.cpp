@@ -32,8 +32,6 @@ void UCombatComponent::BeginPlay()
 
 }
 
-
-
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -126,8 +124,12 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 
 void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 {
-	if (Character_WhiteMan == nullptr || Character_WhiteMan->GetController())
+	
+
+	if (Character_WhiteMan == nullptr || Character_WhiteMan->GetController() == nullptr)
+	{
 		return;
+	}
 
 	if (PlayerController == nullptr)
 	{
@@ -161,8 +163,6 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 			HUD->SetHUDPackage(HUDPackage);
 		}
 	}
-
-
 }
 
 void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget)
