@@ -23,7 +23,8 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 	CameraSpringArm->SetupAttachment(GetMesh());
 	CameraSpringArm->TargetArmLength = 600.f;
 	CameraSpringArm->bUsePawnControlRotation = true;
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	Camera->SetupAttachment(CameraSpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
@@ -44,7 +45,6 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 void ACharactor_WhiteMan::BeginPlay()
 {
 	Super::BeginPlay();
-
 
 }
 

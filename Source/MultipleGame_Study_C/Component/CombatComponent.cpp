@@ -12,6 +12,7 @@
 #include "Components/ActorComponent.h"
 #include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
 #include "MultipleGame_Study_C/HUD/HUD_Character.h"
+#include "Camera/CameraComponent.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -28,6 +29,12 @@ void UCombatComponent::BeginPlay()
 	if (Character_WhiteMan)
 	{
 		Character_WhiteMan->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+
+		if (Character_WhiteMan->GetFollowCamera())
+		{
+			DefaultFOV = Character_WhiteMan->GetFollowCamera()->FieldOfView;
+			CurrentFOV = DefaultFOV;
+		}
 	}
 
 }
@@ -36,7 +43,11 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetHUDCrosshairs(DeltaTime);
+	if (Character_WhiteMan && Character_WhiteMan->IsLocallyControlled())
+	{
+		SetHUDCrosshairs(DeltaTime);
+		InterpFOV(DeltaTime);
+	}
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -74,6 +85,25 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	{
 		Character_WhiteMan->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character_WhiteMan->bUseControllerRotationYaw = true;
+	}
+}
+
+void UCombatComponent::InterpFOV(float DeltaTime)
+{
+	if (EquippedWeapon == nullptr)
+		return;
+
+	if (bIsAiming)
+	{
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, EquippedWeapon->GetZoomedFOV(), DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
+	}
+	else
+	{
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV, DeltaTime, ZoomInterpSpeed);
+	}
+	if (Character_WhiteMan && Character_WhiteMan->GetFollowCamera())
+	{
+		Character_WhiteMan->GetFollowCamera()->SetFieldOfView(CurrentFOV);
 	}
 }
 
@@ -124,8 +154,6 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 
 void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 {
-
-
 	if (Character_WhiteMan == nullptr || Character_WhiteMan->GetController() == nullptr)
 	{
 		return;
