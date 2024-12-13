@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "MultipleGame_Study_C/HUD/HUD_Character.h"
 #include "CombatComponent.generated.h"
 
 class AWeapon;
@@ -63,9 +64,15 @@ private:
 	float AimWalkSpeed;
 
 	bool bFireButtonPressed;
+	
+	FHitResult HitResult;
+
+	FHUDPackage HUDPackage;
 
 	float CrosshairsVelocityFactor;
 	float CrosshairsInAirFactor = 0.f;
+	float CrosshairsAimFactor;
+	float CrosshairsShootFactor;
 
 	float DefaultFOV;
 

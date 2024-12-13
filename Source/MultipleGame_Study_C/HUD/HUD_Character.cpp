@@ -17,32 +17,32 @@ void AHUD_Character::DrawHUD()
 		if (HUDPackage.CrosshairsCenter)
 		{
 			FVector2D Spread(0.f, 0.f);
-			DrawCrosshairs(HUDPackage.CrosshairsCenter, ViewportCenter, Spread);
+			DrawCrosshairs(HUDPackage.CrosshairsCenter, ViewportCenter, Spread, HUDPackage.CrosshairsColor);
 		}
 		if (HUDPackage.CrosshairsLeft)
 		{
 			FVector2D Spread(-SpreadDistance, 0.f);
-			DrawCrosshairs(HUDPackage.CrosshairsLeft, ViewportCenter, Spread);
+			DrawCrosshairs(HUDPackage.CrosshairsLeft, ViewportCenter, Spread, HUDPackage.CrosshairsColor);
 		}
 		if (HUDPackage.CrosshairsRight)
 		{
 			FVector2D Spread(SpreadDistance, 0.f);
-			DrawCrosshairs(HUDPackage.CrosshairsRight, ViewportCenter, Spread);
+			DrawCrosshairs(HUDPackage.CrosshairsRight, ViewportCenter, Spread, HUDPackage.CrosshairsColor);
 		}
 		if (HUDPackage.CrosshairsTop)
 		{
 			FVector2D Spread(0.f, -SpreadDistance);
-			DrawCrosshairs(HUDPackage.CrosshairsTop, ViewportCenter, Spread);
+			DrawCrosshairs(HUDPackage.CrosshairsTop, ViewportCenter, Spread, HUDPackage.CrosshairsColor);
 		}
 		if (HUDPackage.CrosshairsBottom)
 		{
 			FVector2D Spread(0.f, SpreadDistance);
-			DrawCrosshairs(HUDPackage.CrosshairsBottom, ViewportCenter, Spread);
+			DrawCrosshairs(HUDPackage.CrosshairsBottom, ViewportCenter, Spread, HUDPackage.CrosshairsColor);
 		}
 	}
 }
 
-void AHUD_Character::DrawCrosshairs(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread)
+void AHUD_Character::DrawCrosshairs(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread, FLinearColor CrosshairsColor)
 {
 	const float TextureWidth = Texture->GetSizeX();
 	const float TextureHeight = Texture->GetSizeY();
@@ -51,5 +51,5 @@ void AHUD_Character::DrawCrosshairs(UTexture2D* Texture, FVector2D ViewportCente
 		ViewportCenter.Y - TextureHeight / 2.f + Spread.Y
 	);
 
-	DrawTexture(Texture, TextureDrawPoint.X, TextureDrawPoint.Y, TextureWidth, TextureHeight, 0.f, 0.f, 1.f, 1.f);
+	DrawTexture(Texture, TextureDrawPoint.X, TextureDrawPoint.Y, TextureWidth, TextureHeight, 0.f, 0.f, 1.f, 1.f, CrosshairsColor);
 }

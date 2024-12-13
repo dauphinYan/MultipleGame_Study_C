@@ -11,7 +11,6 @@
 #include "DrawDebugHelpers.h"
 #include "Components/ActorComponent.h"
 #include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
-#include "MultipleGame_Study_C/HUD/HUD_Character.h"
 #include "Camera/CameraComponent.h"
 
 UCombatComponent::UCombatComponent()
@@ -47,6 +46,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		SetHUDCrosshairs(DeltaTime);
 		InterpFOV(DeltaTime);
+		TraceUnderCrosshairs(HitResult);
 	}
 }
 
@@ -122,9 +122,12 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	bFireButtonPressed = bPressed;
 	if (bFireButtonPressed)
 	{
-		FHitResult HitResult;
-		TraceUnderCrosshairs(HitResult);
 		Server_Fire(HitResult.ImpactPoint);
+
+		if (EquippedWeapon)
+		{
+			CrosshairsShootFactor = 1.f;
+		}
 	}
 }
 
@@ -149,6 +152,14 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		FVector Start = CrosshairWorldPosition;
 		FVector End = Start + CrosshairWorldDirection * 80000.f;
 		GetWorld()->LineTraceSingleByChannel(TraceHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+		if (TraceHitResult.GetActor() && TraceHitResult.GetActor()->Implements<UInteractWithCrosshairsInterface>())
+		{
+			HUDPackage.CrosshairsColor = FLinearColor::Red;
+		}
+		else
+		{
+			HUDPackage.CrosshairsColor = FLinearColor::White;
+		}
 	}
 }
 
@@ -171,7 +182,6 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 		}
 		else
 		{
-			FHUDPackage HUDPackage;
 			if (EquippedWeapon)
 			{
 				HUDPackage.CrosshairsCenter = EquippedWeapon->CrosshairsCenter;
@@ -203,8 +213,17 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 			{
 				CrosshairsInAirFactor = FMath::FInterpTo(CrosshairsInAirFactor, 0.f, DeltaTime, 30.0f);
 			}
+			if (bIsAiming)
+			{
+				CrosshairsAimFactor = FMath::FInterpTo(CrosshairsAimFactor, 0.58f, DeltaTime, 30.f);
+			}
+			else
+			{
+				CrosshairsAimFactor = FMath::FInterpTo(CrosshairsAimFactor, 0.f, DeltaTime, 30.f);
+			}
+			CrosshairsShootFactor = FMath::FInterpTo(CrosshairsShootFactor, 0.f, DeltaTime, 2.f);
 
-			HUDPackage.CrosshairsSpreadScale = CrosshairsVelocityFactor + CrosshairsInAirFactor;
+			HUDPackage.CrosshairsSpreadScale = 0.4f + CrosshairsVelocityFactor + CrosshairsInAirFactor - CrosshairsAimFactor + CrosshairsShootFactor;
 			HUD->SetHUDPackage(HUDPackage);
 		}
 	}

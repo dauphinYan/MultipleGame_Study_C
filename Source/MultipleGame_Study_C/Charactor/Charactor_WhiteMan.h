@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "MultipleGame_Study_C/CharacterTypes/TurningInPlace.h"
+#include "MultipleGame_Study_C/Interface/InteractWithCrosshairsInterface.h"
 #include "Charactor_WhiteMan.generated.h"
 
 UCLASS()
-class MULTIPLEGAME_STUDY_C_API ACharactor_WhiteMan : public ACharacter
+class MULTIPLEGAME_STUDY_C_API ACharactor_WhiteMan : public ACharacter, public IInteractWithCrosshairsInterface
 {
 	GENERATED_BODY()
 
