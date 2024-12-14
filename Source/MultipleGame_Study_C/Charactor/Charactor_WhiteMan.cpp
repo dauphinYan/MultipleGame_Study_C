@@ -34,7 +34,7 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
-	
+
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
@@ -54,6 +54,7 @@ void ACharactor_WhiteMan::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AimOffset(DeltaTime);
+	HideCameraIfCharacterClose();
 }
 
 void ACharactor_WhiteMan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -95,13 +96,27 @@ void ACharactor_WhiteMan::PlayFireMontage(bool bIsAiming)
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
 		return;
-	
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && FireMontage)
 	{
 		AnimInstance->Montage_Play(FireMontage);
 		FName SectionName;
 		SectionName = bIsAiming ? FName("RifleAim") : FName("RifleHip");
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+void ACharactor_WhiteMan::PlayHitReactMontage()
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+		return;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		FName SectionName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
@@ -269,6 +284,33 @@ void ACharactor_WhiteMan::TurnInPlace(float DeltaTime)
 	else if (AO_Yaw < -90.f)
 	{
 		TurningInPlace = ETurningInPlace::ETIP_Left;
+	}
+}
+
+void ACharactor_WhiteMan::Multicast_Hit_Implementation()
+{
+	PlayHitReactMontage();
+}
+
+void ACharactor_WhiteMan::HideCameraIfCharacterClose()
+{
+	if (!IsLocallyControlled())
+		return;
+	if ((Camera->GetComponentLocation() - GetActorLocation()).Size() < CameraThreshold)
+	{
+		GetMesh()->SetVisibility(false);
+		if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+		{
+			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+		}
+	}
+	else
+	{
+		GetMesh()->SetVisibility(true);
+		if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
+		{
+			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+		}
 	}
 }
 

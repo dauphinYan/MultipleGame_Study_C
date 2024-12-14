@@ -5,6 +5,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Sound/SoundCue.h"
+#include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
 
 AProjectile::AProjectile()
 {
@@ -18,6 +19,7 @@ AProjectile::AProjectile()
 	CollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
@@ -48,6 +50,11 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpluse, const FHitResult& Hit)
 {
+	ACharactor_WhiteMan* Character_WhiteMan = Cast<ACharactor_WhiteMan>(OtherActor);
+	if (Character_WhiteMan)
+	{
+		Character_WhiteMan->Multicast_Hit();
+	}
 
 	Destroy();
 }
