@@ -65,6 +65,7 @@ private:
 	void Server_EquipButtonPressed();
 
 	float AO_Yaw;
+	//UPROPERTY(Replicated)
 	float AO_Pitch;
 	FRotator StartAimRotation;
 

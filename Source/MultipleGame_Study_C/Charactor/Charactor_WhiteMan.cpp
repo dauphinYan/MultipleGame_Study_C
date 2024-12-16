@@ -11,6 +11,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "AnimInstance_WhiteMan.h"
+#include "MultipleGame_Study_C/MultipleGame_Study_C.h"
 
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
@@ -35,7 +36,7 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
 
-
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
@@ -80,6 +81,7 @@ void ACharactor_WhiteMan::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(ACharactor_WhiteMan, OverlappingWeapon, COND_OwnerOnly);
+	//DOREPLIFETIME(ACharactor_WhiteMan, AO_Yaw);
 }
 
 void ACharactor_WhiteMan::PostInitializeComponents()

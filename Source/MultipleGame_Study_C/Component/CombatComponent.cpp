@@ -12,6 +12,7 @@
 #include "Components/ActorComponent.h"
 #include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -117,17 +118,12 @@ void UCombatComponent::SetAiming(bool bAiming)
 	}
 }
 
-void UCombatComponent::FireButtonPressed(bool bPressed)
+void UCombatComponent::Server_SetAiming_Implementation(bool bAiming)
 {
-	bFireButtonPressed = bPressed;
-	if (bFireButtonPressed)
+	this->bIsAiming = bAiming;
+	if (Character_WhiteMan)
 	{
-		Server_Fire(HitResult.ImpactPoint);
-
-		if (EquippedWeapon)
-		{
-			CrosshairsShootFactor = 1.f;
-		}
+		Character_WhiteMan->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
 	}
 }
 
@@ -155,7 +151,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 		{
 			float DistanceToCharacter = (Character_WhiteMan->GetActorLocation() - Start).Size();
 			Start += CrosshairWorldDirection * (DistanceToCharacter + 100.f);
-			
+
 		}
 
 		FVector End = Start + CrosshairWorldDirection * 80000.f;
@@ -237,6 +233,36 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 	}
 }
 
+void UCombatComponent::FireButtonPressed(bool bPressed)
+{
+	bFireButtonPressed = bPressed;
+	if (bFireButtonPressed && EquippedWeapon)
+	{
+		Fire();
+	}
+}
+
+void UCombatComponent::Fire()
+{
+	if (bCanFire)
+	{
+		bCanFire = false;
+		Server_Fire(HitResult.ImpactPoint);
+
+		if (EquippedWeapon)
+		{
+			CrosshairsShootFactor = 1.f;
+		}
+		StartFireTimer();
+	}
+
+}
+
+void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+{
+	Multicast_Fire(TraceHitTarget);
+}
+
 void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if (EquippedWeapon == nullptr)
@@ -248,16 +274,26 @@ void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& 
 	}
 }
 
-void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget)
+void UCombatComponent::StartFireTimer()
 {
-	Multicast_Fire(TraceHitTarget);
+	if (EquippedWeapon == nullptr || Character_WhiteMan == nullptr)
+		return;
+	Character_WhiteMan->GetWorldTimerManager().SetTimer(
+		FireTimer,
+		this,
+		&UCombatComponent::FireTimerFinished,
+		EquippedWeapon->FireDelay
+	);
 }
 
-void UCombatComponent::Server_SetAiming_Implementation(bool bAiming)
+void UCombatComponent::FireTimerFinished()
 {
-	this->bIsAiming = bAiming;
-	if (Character_WhiteMan)
+	bCanFire = true;
+	if (bFireButtonPressed && EquippedWeapon->bAutomatic)
 	{
-		Character_WhiteMan->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+		Fire();
 	}
+
 }
+
+

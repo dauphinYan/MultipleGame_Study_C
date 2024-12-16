@@ -33,6 +33,8 @@ protected:
 
 	void FireButtonPressed(bool bPressed);
 
+	void Fire();
+
 	UFUNCTION(Server, Reliable)
 	void Server_Fire(const FVector_NetQuantize& TraceHitTarget);
 
@@ -64,7 +66,7 @@ private:
 	float AimWalkSpeed;
 
 	bool bFireButtonPressed;
-	
+
 	FHitResult HitResult;
 
 	FHUDPackage HUDPackage;
@@ -85,4 +87,11 @@ private:
 	float ZoomInterpSpeed = 20.f;
 
 	void InterpFOV(float DeltaTime);
+
+	FTimerHandle FireTimer;
+
+	bool bCanFire = true;
+
+	void StartFireTimer();
+	void FireTimerFinished();
 };
