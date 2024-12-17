@@ -81,7 +81,7 @@ void ACharactor_WhiteMan::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(ACharactor_WhiteMan, OverlappingWeapon, COND_OwnerOnly);
-	//DOREPLIFETIME(ACharactor_WhiteMan, AO_Yaw);
+	DOREPLIFETIME(ACharactor_WhiteMan, CurHealth);
 }
 
 void ACharactor_WhiteMan::PostInitializeComponents()
@@ -314,6 +314,11 @@ void ACharactor_WhiteMan::HideCameraIfCharacterClose()
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
 		}
 	}
+}
+
+void ACharactor_WhiteMan::OnRep_CurHealth()
+{
+
 }
 
 void ACharactor_WhiteMan::SetOverlappingWeapon(AWeapon* Weapon)

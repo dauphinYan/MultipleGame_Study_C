@@ -83,6 +83,15 @@ private:
 	UPROPERTY(EditAnywhere)
 	float CameraThreshold = 200.f;
 
+	UPROPERTY(EditAnywhere, Category = "Player State")
+	float MaxHealth = 100.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CurHealth, VisibleAnywhere, Category = "Player State")
+	float CurHealth = 100.f;
+
+	UFUNCTION()
+	void OnRep_CurHealth();
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();

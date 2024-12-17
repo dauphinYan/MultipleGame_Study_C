@@ -2,6 +2,24 @@
 
 
 #include "HUD_Character.h"
+#include "CharacterOverlay.h"
+
+void AHUD_Character::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AddCharacterOverlay();
+}
+
+void AHUD_Character::AddCharacterOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController)
+	{
+		CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
+		CharacterOverlay->AddToViewport();
+	}
+}
 
 void AHUD_Character::DrawHUD()
 {
@@ -41,6 +59,8 @@ void AHUD_Character::DrawHUD()
 		}
 	}
 }
+
+
 
 void AHUD_Character::DrawCrosshairs(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread, FLinearColor CrosshairsColor)
 {
