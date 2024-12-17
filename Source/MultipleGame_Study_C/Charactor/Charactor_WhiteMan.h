@@ -20,8 +20,10 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage(bool bIsAiming);
+	void PlayElimMontage();
 
-
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Elim();
 protected:
 	virtual void BeginPlay() override;
 
@@ -79,7 +81,10 @@ private:
 	class UAnimMontage* FireMontage;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
-	class UAnimMontage* HitReactMontage;
+	UAnimMontage* HitReactMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* ElimMontage;
 
 	void HideCameraIfCharacterClose();
 
@@ -97,6 +102,7 @@ private:
 
 	class APlayerController_Character* CharacterPlayerController;
 
+	bool bElimmed = false;
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
@@ -105,4 +111,5 @@ public:
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; };
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return Camera; }
+	FORCEINLINE bool IsElimmed()const { return bElimmed; }
 };

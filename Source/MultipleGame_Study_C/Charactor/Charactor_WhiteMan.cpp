@@ -13,6 +13,7 @@
 #include "AnimInstance_WhiteMan.h"
 #include "MultipleGame_Study_C/MultipleGame_Study_C.h"
 #include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
+#include "MultipleGame_Study_C//GamePlay/GameMode_Character.h"
 
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
@@ -123,6 +124,21 @@ void ACharactor_WhiteMan::PlayFireMontage(bool bIsAiming)
 		SectionName = bIsAiming ? FName("RifleAim") : FName("RifleHip");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
+}
+
+void ACharactor_WhiteMan::PlayElimMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ElimMontage)
+	{
+		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
+void ACharactor_WhiteMan::Multicast_Elim_Implementation()
+{
+	bElimmed = false;
+	PlayElimMontage();
 }
 
 void ACharactor_WhiteMan::PlayHitReactMontage()
@@ -286,6 +302,18 @@ void ACharactor_WhiteMan::ReceiveDamage(AActor* DamageActor, float Damage, const
 	CurHealth = FMath::Clamp(CurHealth - Damage, 0.f, MaxHealth);
 	UpdateHealth();
 	PlayHitReactMontage();
+
+	if (CurHealth == 0.f)
+	{
+		AGameMode_Character* CharacterGameMode = GetWorld()->GetAuthGameMode<AGameMode_Character>();
+		if (CharacterGameMode)
+		{
+			CharacterPlayerController = CharacterPlayerController == nullptr ? Cast<APlayerController_Character>(Controller) : CharacterPlayerController;
+			APlayerController_Character* AttackerController = Cast<APlayerController_Character>(InstigatorController);
+			CharacterGameMode->PlayerEliminated(this, CharacterPlayerController, AttackerController);
+		}
+	}
+
 }
 
 void ACharactor_WhiteMan::OnRep_CurHealth()
