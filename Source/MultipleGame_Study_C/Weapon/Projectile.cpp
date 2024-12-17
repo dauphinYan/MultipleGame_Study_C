@@ -51,11 +51,6 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpluse, const FHitResult& Hit)
 {
-	ACharactor_WhiteMan* Character_WhiteMan = Cast<ACharactor_WhiteMan>(OtherActor);
-	if (Character_WhiteMan)
-	{
-		Character_WhiteMan->Multicast_Hit();
-	}
 
 	Destroy();
 }

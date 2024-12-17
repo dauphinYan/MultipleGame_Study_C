@@ -14,4 +14,11 @@ class MULTIPLEGAME_STUDY_C_API APlayerController_Character : public APlayerContr
 {
 	GENERATED_BODY()
 	
+public:
+	void SetHUDHealth(float Health, float MaxHealth);
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	class AHUD_Character* CharacterHUD;
 };

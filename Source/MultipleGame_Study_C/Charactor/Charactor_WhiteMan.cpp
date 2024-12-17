@@ -12,6 +12,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "AnimInstance_WhiteMan.h"
 #include "MultipleGame_Study_C/MultipleGame_Study_C.h"
+#include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
 
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
@@ -48,6 +49,21 @@ void ACharactor_WhiteMan::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UpdateHealth();
+
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ACharactor_WhiteMan::ReceiveDamage);
+	}
+}
+
+void ACharactor_WhiteMan::UpdateHealth()
+{
+	CharacterPlayerController = CharacterPlayerController == nullptr ? Cast<APlayerController_Character>(Controller) : CharacterPlayerController;
+	if (CharacterPlayerController)
+	{
+		CharacterPlayerController->SetHUDHealth(CurHealth, MaxHealth);
+	}
 }
 
 void ACharactor_WhiteMan::Tick(float DeltaTime)
@@ -265,6 +281,19 @@ void ACharactor_WhiteMan::AimOffset(float DeltaTime)
 	}
 }
 
+void ACharactor_WhiteMan::ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
+{
+	CurHealth = FMath::Clamp(CurHealth - Damage, 0.f, MaxHealth);
+	UpdateHealth();
+	PlayHitReactMontage();
+}
+
+void ACharactor_WhiteMan::OnRep_CurHealth()
+{
+	PlayHitReactMontage();
+	UpdateHealth();
+}
+
 void ACharactor_WhiteMan::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
 	if (OverlappingWeapon)
@@ -289,11 +318,6 @@ void ACharactor_WhiteMan::TurnInPlace(float DeltaTime)
 	}
 }
 
-void ACharactor_WhiteMan::Multicast_Hit_Implementation()
-{
-	PlayHitReactMontage();
-}
-
 void ACharactor_WhiteMan::HideCameraIfCharacterClose()
 {
 	if (!IsLocallyControlled())
@@ -314,11 +338,6 @@ void ACharactor_WhiteMan::HideCameraIfCharacterClose()
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
 		}
 	}
-}
-
-void ACharactor_WhiteMan::OnRep_CurHealth()
-{
-
 }
 
 void ACharactor_WhiteMan::SetOverlappingWeapon(AWeapon* Weapon)

@@ -9,8 +9,8 @@ UCLASS()
 class MULTIPLEGAME_STUDY_C_API AProjectile : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 
 	AProjectile();
 
@@ -20,7 +20,10 @@ protected:
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpluse, const FHitResult& Hit);
 
-public:	
+	UPROPERTY(EditAnywhere)
+	float Damage = 20.f;
+
+public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Destroyed() override;
 

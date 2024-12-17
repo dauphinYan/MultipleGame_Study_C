@@ -21,11 +21,11 @@ public:
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage(bool bIsAiming);
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_Hit();
 
 protected:
 	virtual void BeginPlay() override;
+
+	void UpdateHealth();
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -44,6 +44,9 @@ protected:
 	void PlayHitReactMontage();
 
 	void AimOffset(float DeltaTime);
+
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
@@ -91,6 +94,8 @@ private:
 
 	UFUNCTION()
 	void OnRep_CurHealth();
+
+	class APlayerController_Character* CharacterPlayerController;
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

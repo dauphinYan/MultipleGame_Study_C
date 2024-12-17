@@ -131,6 +131,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 			if (World)
 			{
 				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = GetOwner();
 				World->SpawnActor<ACasing>(
 					CasingClass, SocketTransform.GetLocation(), SocketTransform.GetRotation().Rotator(), SpawnParams
 				);
