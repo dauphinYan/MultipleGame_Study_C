@@ -137,6 +137,10 @@ void ACharactor_WhiteMan::PlayElimMontage()
 
 void ACharactor_WhiteMan::Elim()
 {
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Droppped();
+	}
 	Multicast_Elim();
 	GetWorldTimerManager().SetTimer(
 		ElimTimer,
@@ -150,6 +154,14 @@ void ACharactor_WhiteMan::Multicast_Elim_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();
+
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	if (CharacterPlayerController)
+	{
+		DisableInput(CharacterPlayerController);
+	}
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ACharactor_WhiteMan::ElimTimerFinished()
