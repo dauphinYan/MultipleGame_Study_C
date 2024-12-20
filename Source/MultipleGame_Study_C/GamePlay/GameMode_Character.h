@@ -17,4 +17,5 @@ class MULTIPLEGAME_STUDY_C_API AGameMode_Character : public AGameMode
 
 public:
 	virtual void PlayerEliminated(class ACharactor_WhiteMan* ElimmedCharacter, class APlayerController_Character* VictimController, APlayerController_Character* AttackerController);
+	virtual void RequestRespawn(class ACharacter* ElimmedCharacter, AController* ElimmedController);
 };

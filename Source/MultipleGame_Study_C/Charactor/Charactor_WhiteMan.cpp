@@ -14,7 +14,7 @@
 #include "MultipleGame_Study_C/MultipleGame_Study_C.h"
 #include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
 #include "MultipleGame_Study_C//GamePlay/GameMode_Character.h"
-
+#include "TimerManager.h"
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
 {
@@ -135,10 +135,31 @@ void ACharactor_WhiteMan::PlayElimMontage()
 	}
 }
 
+void ACharactor_WhiteMan::Elim()
+{
+	Multicast_Elim();
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ACharactor_WhiteMan::ElimTimerFinished,
+		ElimDelay
+	);
+}
+
 void ACharactor_WhiteMan::Multicast_Elim_Implementation()
 {
-	bElimmed = false;
+	bElimmed = true;
 	PlayElimMontage();
+}
+
+void ACharactor_WhiteMan::ElimTimerFinished()
+{
+	AGameMode_Character* CharacterGameMode = GetWorld()->GetAuthGameMode<AGameMode_Character>();
+	if (CharacterGameMode)
+	{
+		CharacterGameMode->RequestRespawn(this, Controller);
+
+	}
 }
 
 void ACharactor_WhiteMan::PlayHitReactMontage()

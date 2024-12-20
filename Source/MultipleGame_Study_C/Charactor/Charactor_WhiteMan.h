@@ -22,6 +22,7 @@ public:
 	void PlayFireMontage(bool bIsAiming);
 	void PlayElimMontage();
 
+	void Elim();
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Elim();
 protected:
@@ -103,6 +104,13 @@ private:
 	class APlayerController_Character* CharacterPlayerController;
 
 	bool bElimmed = false;
+
+	FTimerHandle ElimTimer;
+	UPROPERTY(EditDefaultsOnly)
+	float ElimDelay = 3.f;
+
+	void ElimTimerFinished();
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
