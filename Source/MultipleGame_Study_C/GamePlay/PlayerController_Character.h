@@ -16,6 +16,7 @@ class MULTIPLEGAME_STUDY_C_API APlayerController_Character : public APlayerContr
 
 public:
 	void SetHUDHealth(float Health, float MaxHealth);
+	void SetHUDScore(float Score);
 	virtual void OnPossess(APawn* InPawn) override;
 protected:
 	virtual void BeginPlay() override;

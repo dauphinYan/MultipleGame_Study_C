@@ -27,6 +27,7 @@ public:
 	void Multicast_Elim();
 protected:
 	virtual void BeginPlay() override;
+	void PollInit();
 
 	void UpdateHealth();
 
@@ -110,6 +111,8 @@ private:
 	float ElimDelay = 3.f;
 
 	void ElimTimerFinished();
+
+	class APlayerState_Character* CharacterPlayerState;
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

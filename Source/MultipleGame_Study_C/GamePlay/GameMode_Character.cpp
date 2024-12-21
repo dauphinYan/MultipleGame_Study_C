@@ -6,9 +6,18 @@
 #include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
+#include "MultipleGame_Study_C/GamePlay/PlayerState_Character.h"
 
 void AGameMode_Character::PlayerEliminated(ACharactor_WhiteMan* ElimmedCharacter, APlayerController_Character* VictimController, APlayerController_Character* AttackerController)
 {
+	APlayerState_Character* AttackerPlayerState = AttackerController ? Cast<APlayerState_Character>(AttackerController->PlayerState) : nullptr;
+	APlayerState_Character* VictimPlayerState = VictimController ? Cast<APlayerState_Character>(VictimController->PlayerState) : nullptr;
+
+	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState)
+	{
+		AttackerPlayerState->AddToScore(1.f);
+	}
+
 	if (ElimmedCharacter)
 	{
 		ElimmedCharacter->Elim();

@@ -15,6 +15,7 @@
 #include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
 #include "MultipleGame_Study_C//GamePlay/GameMode_Character.h"
 #include "TimerManager.h"
+#include "MultipleGame_Study_C/GamePlay/PlayerState_Character.h"
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
 {
@@ -58,6 +59,18 @@ void ACharactor_WhiteMan::BeginPlay()
 	}
 }
 
+void ACharactor_WhiteMan::PollInit()
+{
+	if (CharacterPlayerState == nullptr)
+	{
+		CharacterPlayerState = GetPlayerState<APlayerState_Character>();
+		if (CharacterPlayerState)
+		{
+			CharacterPlayerState->AddToScore(0.f);
+		}
+	}
+}
+
 void ACharactor_WhiteMan::UpdateHealth()
 {
 	CharacterPlayerController = CharacterPlayerController == nullptr ? Cast<APlayerController_Character>(Controller) : CharacterPlayerController;
@@ -73,6 +86,7 @@ void ACharactor_WhiteMan::Tick(float DeltaTime)
 
 	AimOffset(DeltaTime);
 	HideCameraIfCharacterClose();
+	PollInit();
 }
 
 void ACharactor_WhiteMan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

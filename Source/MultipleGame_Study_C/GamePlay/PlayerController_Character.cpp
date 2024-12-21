@@ -31,12 +31,26 @@ void APlayerController_Character::SetHUDHealth(float Health, float MaxHealth)
 	}
 }
 
+void APlayerController_Character::SetHUDScore(float Score)
+{
+	if (CharacterHUD == nullptr)
+	{
+		CharacterHUD = Cast<AHUD_Character>(GetHUD());
+	}
+
+	if (CharacterHUD && CharacterHUD->CharacterOverlay)
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
+		CharacterHUD->CharacterOverlay->ScoreAmountText->SetText(FText::FromString(ScoreText));
+	}
+}
+
 void APlayerController_Character::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
 	ACharactor_WhiteMan* Character_WhiteMan = Cast <ACharactor_WhiteMan>(InPawn);
-	if(Character_WhiteMan)
+	if (Character_WhiteMan)
 	{
 		SetHUDHealth(Character_WhiteMan->GetCurHealth(), Character_WhiteMan->GetMaxHealth());
 	}
