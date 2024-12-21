@@ -120,4 +120,6 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return Camera; }
 	FORCEINLINE bool IsElimmed()const { return bElimmed; }
+	FORCEINLINE float GetCurHealth()const { return CurHealth; };
+	FORCEINLINE float GetMaxHealth()const { return MaxHealth; };
 };

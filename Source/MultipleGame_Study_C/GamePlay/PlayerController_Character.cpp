@@ -6,6 +6,7 @@
 #include "MultipleGame_Study_C/HUD/CharacterOverlay.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
 
 void APlayerController_Character::BeginPlay()
 {
@@ -27,5 +28,16 @@ void APlayerController_Character::SetHUDHealth(float Health, float MaxHealth)
 		CharacterHUD->CharacterOverlay->HealthBar->SetPercent(HealthPercent);
 		FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 		CharacterHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
+	}
+}
+
+void APlayerController_Character::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	ACharactor_WhiteMan* Character_WhiteMan = Cast <ACharactor_WhiteMan>(InPawn);
+	if(Character_WhiteMan)
+	{
+		SetHUDHealth(Character_WhiteMan->GetCurHealth(), Character_WhiteMan->GetMaxHealth());
 	}
 }
