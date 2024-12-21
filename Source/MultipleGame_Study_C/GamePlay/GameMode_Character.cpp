@@ -18,6 +18,11 @@ void AGameMode_Character::PlayerEliminated(ACharactor_WhiteMan* ElimmedCharacter
 		AttackerPlayerState->AddToScore(1.f);
 	}
 
+	if (VictimPlayerState)
+	{
+		VictimPlayerState->AddToDefeats(1);
+	}
+
 	if (ElimmedCharacter)
 	{
 		ElimmedCharacter->Elim();

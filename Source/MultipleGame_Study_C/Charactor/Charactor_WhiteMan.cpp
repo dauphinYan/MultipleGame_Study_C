@@ -67,6 +67,7 @@ void ACharactor_WhiteMan::PollInit()
 		if (CharacterPlayerState)
 		{
 			CharacterPlayerState->AddToScore(0.f);
+			CharacterPlayerState->AddToDefeats(0);
 		}
 	}
 }

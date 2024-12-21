@@ -102,6 +102,7 @@ private:
 	UFUNCTION()
 	void OnRep_CurHealth();
 
+	UPROPERTY()
 	class APlayerController_Character* CharacterPlayerController;
 
 	bool bElimmed = false;
@@ -112,6 +113,7 @@ private:
 
 	void ElimTimerFinished();
 
+	UPROPERTY()
 	class APlayerState_Character* CharacterPlayerState;
 
 public:
