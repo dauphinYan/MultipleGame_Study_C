@@ -167,6 +167,11 @@ void ACharactor_WhiteMan::Elim()
 
 void ACharactor_WhiteMan::Multicast_Elim_Implementation()
 {
+	if (CharacterPlayerController)
+	{
+		CharacterPlayerController->SetHUDWeaponAmmo(0);
+	}
+
 	bElimmed = true;
 	PlayElimMontage();
 

@@ -34,7 +34,7 @@ void AProjectile::BeginPlay()
 	if (Tracer)
 	{
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached(
-			Tracer,
+			Tracer, 
 			CollisionBox,
 			FName(),
 			GetActorLocation(),

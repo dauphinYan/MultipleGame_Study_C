@@ -8,6 +8,17 @@
 #include "Components/TextBlock.h"
 #include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
 
+void APlayerController_Character::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	ACharactor_WhiteMan* Character_WhiteMan = Cast <ACharactor_WhiteMan>(InPawn);
+	if (Character_WhiteMan)
+	{
+		SetHUDHealth(Character_WhiteMan->GetCurHealth(), Character_WhiteMan->GetMaxHealth());
+	}
+}
+
 void APlayerController_Character::BeginPlay()
 {
 	Super::BeginPlay();
@@ -59,13 +70,16 @@ void APlayerController_Character::SetHUDDefeats(int32 Defeats)
 	}
 }
 
-void APlayerController_Character::OnPossess(APawn* InPawn)
+void APlayerController_Character::SetHUDWeaponAmmo(int32 Ammo)
 {
-	Super::OnPossess(InPawn);
-
-	ACharactor_WhiteMan* Character_WhiteMan = Cast <ACharactor_WhiteMan>(InPawn);
-	if (Character_WhiteMan)
+	if (CharacterHUD == nullptr)
 	{
-		SetHUDHealth(Character_WhiteMan->GetCurHealth(), Character_WhiteMan->GetMaxHealth());
+		CharacterHUD = Cast<AHUD_Character>(GetHUD());
+	}
+
+	if (CharacterHUD && CharacterHUD->CharacterOverlay)
+	{
+		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
+		CharacterHUD->CharacterOverlay->WeaponAmmoAmountText->SetText(FText::FromString(AmmoText));
 	}
 }

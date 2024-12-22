@@ -10,6 +10,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Casing.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
 
 AWeapon::AWeapon()
 {
@@ -31,6 +32,13 @@ AWeapon::AWeapon()
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	PickupWidget->SetupAttachment(RootComponent);
+}
+
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
 }
 
 void AWeapon::BeginPlay()
@@ -69,6 +77,45 @@ void AWeapon::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 	}
 }
 
+void AWeapon::SetHUDAmmo()
+{
+	OwnerCharacter = OwnerCharacter == nullptr ? Cast<ACharactor_WhiteMan>(GetOwner()) : OwnerCharacter;
+	if (OwnerCharacter)
+	{
+		CharacterOwnerController = CharacterOwnerController == nullptr ? Cast<APlayerController_Character>(OwnerCharacter->Controller) : CharacterOwnerController;
+		if (CharacterOwnerController)
+		{
+			CharacterOwnerController->SetHUDWeaponAmmo(Ammo);
+		}
+	}
+}
+
+void AWeapon::SpendRound()
+{
+	Ammo = FMath::Clamp(Ammo - 1, 0, MaxCapacity);
+	SetHUDAmmo();
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	SetHUDAmmo();
+}
+
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+
+	if (Owner == nullptr)
+	{
+		OwnerCharacter = nullptr;
+		CharacterOwnerController = nullptr;
+	}
+	else
+	{
+		SetHUDAmmo();
+	}
+}
+
 void AWeapon::SetWeaponState(EWeaponState State)
 {
 	WeaponState = State;
@@ -95,6 +142,11 @@ void AWeapon::SetWeaponState(EWeaponState State)
 	}
 }
 
+bool AWeapon::IsEmpty()
+{
+	return Ammo <= 0;
+}
+
 void AWeapon::OnRep_WeaponState()
 {
 	switch (WeaponState)
@@ -119,12 +171,6 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AWeapon, WeaponState);
 }
 
 void AWeapon::ShowPickupWidget(bool bShow)
@@ -160,6 +206,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 
 		}
 	}
+	SpendRound();
 }
 
 void AWeapon::Droppped()
@@ -168,5 +215,7 @@ void AWeapon::Droppped()
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 	SetOwner(nullptr);
+	OwnerCharacter = nullptr;
+	CharacterOwnerController = nullptr;
 }
 

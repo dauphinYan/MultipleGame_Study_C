@@ -56,6 +56,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	bool bAutomatic = true;
 
+	void SetHUDAmmo();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -82,15 +84,35 @@ private:
 	UFUNCTION()
 	void OnRep_WeaponState();
 
-	UPROPERTY(EditAnywhere, Category = "CrossHairs")
+	UPROPERTY(EditAnywhere, Category = "Weapon Property")
 	class UAnimationAsset* FireAnimation;
 
-	UPROPERTY(EditAnywhere, Category = "CrossHairs")
+	UPROPERTY(EditAnywhere, Category = "Weapon Property")
 	TSubclassOf<class ACasing> CasingClass;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Property", ReplicatedUsing = OnRep_Ammo)
+	int32 Ammo;
+
+	UFUNCTION()
+	void OnRep_Ammo();
+
+	void SpendRound();
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Property")
+	int32 MaxCapacity;
+
+	UPROPERTY()
+	class APlayerController_Character* CharacterOwnerController;
+
+	UPROPERTY()
+	class ACharactor_WhiteMan* OwnerCharacter;
+
+	virtual void OnRep_Owner() override;
 
 public:
 	FORCEINLINE void SetWeaponState(EWeaponState State);
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV() const { return ZoomFOV; }
-	FORCEINLINE float GetZoomInterpSpeed() const{ return ZoomInterpSpeed; }
+	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+	bool  ();
 };
