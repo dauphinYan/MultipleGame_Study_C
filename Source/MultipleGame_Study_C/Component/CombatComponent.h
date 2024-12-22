@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MultipleGame_Study_C/HUD/HUD_Character.h"
+#include "MultipleGame_Study_C/Weapon/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
 class AWeapon;
@@ -96,4 +97,17 @@ private:
 	void FireTimerFinished();
 
 	bool CanFire();
+
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo;
+
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
+	TMap<EWeaponType, int32> CarriedAmmoMap;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingAirAmmo = 30;
+
+	void InitializeCarriedAmmo();
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WeaponTypes.h"
 #include "Weapon.generated.h"
 
 UENUM(BlueprintType)
@@ -109,10 +110,14 @@ private:
 
 	virtual void OnRep_Owner() override;
 
+	UPROPERTY(EditAnywhere)
+	EWeaponType WeaponType;
+
 public:
 	FORCEINLINE void SetWeaponState(EWeaponState State);
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV() const { return ZoomFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
-	bool  ();
+	bool IsEmpty();
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 };
