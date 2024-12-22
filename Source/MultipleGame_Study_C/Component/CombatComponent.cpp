@@ -102,6 +102,23 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	Character_WhiteMan->bUseControllerRotationYaw = true;
 }
 
+void UCombatComponent::Reload()
+{
+	if (CarriedAmmo > 0)
+	{
+		Server_Reload();
+	}
+}
+
+void UCombatComponent::Server_Reload_Implementation()
+{
+	if (Character_WhiteMan == nullptr) return;
+
+	Character_WhiteMan->PlayReloadMontage();
+
+}
+
+
 void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippedWeapon && Character_WhiteMan)
@@ -260,6 +277,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 		}
 	}
 }
+
 
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {

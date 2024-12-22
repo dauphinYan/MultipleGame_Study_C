@@ -16,6 +16,7 @@
 #include "MultipleGame_Study_C//GamePlay/GameMode_Character.h"
 #include "TimerManager.h"
 #include "MultipleGame_Study_C/GamePlay/PlayerState_Character.h"
+#include "MultipleGame_Study_C/Weapon/WeaponTypes.h"
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
 {
@@ -107,6 +108,7 @@ void ACharactor_WhiteMan::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ACharactor_WhiteMan::AimButtonReleased);
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACharactor_WhiteMan::FireButtonPressed);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ACharactor_WhiteMan::FireButtonReleased);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ACharactor_WhiteMan::ReloadButtonPressed);
 }
 
 void ACharactor_WhiteMan::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -147,6 +149,28 @@ void ACharactor_WhiteMan::PlayElimMontage()
 	if (AnimInstance && ElimMontage)
 	{
 		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
+void ACharactor_WhiteMan::PlayReloadMontage()
+{
+	if (Combat == nullptr || Combat->EquippedWeapon == nullptr)
+		return;
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ReloadMontage)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);
+		FName SectionName;
+		
+		switch (Combat->EquippedWeapon->GetWeaponType())
+		{
+		case EWeaponType::EWT_AssaultRifle:
+			SectionName = FName("Rifle");
+			break;
+		}
+
+		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
 
@@ -314,6 +338,14 @@ void ACharactor_WhiteMan::FireButtonReleased()
 	if (Combat)
 	{
 		Combat->FireButtonPressed(false);
+	}
+}
+
+void ACharactor_WhiteMan::ReloadButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->Reload();
 	}
 }
 

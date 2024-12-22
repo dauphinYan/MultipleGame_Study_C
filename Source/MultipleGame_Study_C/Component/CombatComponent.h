@@ -23,6 +23,7 @@ public:
 	virtual void OnRegister() override;
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
+	void Reload();
 
 protected:
 	virtual void BeginPlay() override;
@@ -45,6 +46,9 @@ protected:
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
 	void SetHUDCrosshairs(float DeltaTime);
+
+	UFUNCTION(Server,Reliable)
+	void Server_Reload();
 
 private:
 	class ACharactor_WhiteMan* Character_WhiteMan;
