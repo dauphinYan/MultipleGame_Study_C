@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "MultipleGame_Study_C/HUD/HUD_Character.h"
 #include "MultipleGame_Study_C/Weapon/WeaponTypes.h"
+#include "MultipleGame_Study_C/CharacterTypes/CombatState.h"
 #include "CombatComponent.generated.h"
 
 class AWeapon;
@@ -24,7 +25,8 @@ public:
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
 	void Reload();
-
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
 protected:
 	virtual void BeginPlay() override;
 
@@ -47,8 +49,10 @@ protected:
 
 	void SetHUDCrosshairs(float DeltaTime);
 
-	UFUNCTION(Server,Reliable)
+	UFUNCTION(Server, Reliable)
 	void Server_Reload();
+
+	void HandleReload();
 
 private:
 	class ACharactor_WhiteMan* Character_WhiteMan;
@@ -114,4 +118,10 @@ private:
 	int32 StartingAirAmmo = 30;
 
 	void InitializeCarriedAmmo();
+
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
+
+	UFUNCTION()
+	void OnRep_CombatState();
 };

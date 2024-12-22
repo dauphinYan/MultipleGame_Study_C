@@ -5,6 +5,7 @@
 #include "Charactor_WhiteMan.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "MultipleGame_Study_C/CharacterTypes/CombatState.h"
 
 void UAnimInstance_WhiteMan::NativeInitializeAnimation()
 {
@@ -50,4 +51,6 @@ void UAnimInstance_WhiteMan::NativeUpdateAnimation(float DeltaTime)
 
 	AO_Yaw = Character_WhiteMan->GetAO_Yaw();
 	AO_Pitch = Character_WhiteMan->GetAO_Pitch();
+
+	bUseFABRIK = Character_WhiteMan->GetCombatState() != ECombatState::ECS_Reloading;
 }

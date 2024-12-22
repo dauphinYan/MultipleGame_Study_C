@@ -162,7 +162,7 @@ void ACharactor_WhiteMan::PlayReloadMontage()
 	{
 		AnimInstance->Montage_Play(ReloadMontage);
 		FName SectionName;
-		
+
 		switch (Combat->EquippedWeapon->GetWeaponType())
 		{
 		case EWeaponType::EWT_AssaultRifle:
@@ -197,7 +197,6 @@ void ACharactor_WhiteMan::Multicast_Elim_Implementation()
 	}
 
 	bElimmed = true;
-	PlayElimMontage();
 
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
@@ -206,6 +205,8 @@ void ACharactor_WhiteMan::Multicast_Elim_Implementation()
 		DisableInput(CharacterPlayerController);
 	}
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	PlayElimMontage();
 }
 
 void ACharactor_WhiteMan::ElimTimerFinished()
@@ -477,4 +478,11 @@ bool ACharactor_WhiteMan::IsWeaponEquipped()
 bool ACharactor_WhiteMan::IsAiming()
 {
 	return (Combat && Combat->bIsAiming);
+}
+
+ECombatState ACharactor_WhiteMan::GetCombatState() const
+{
+	if (Combat == nullptr) return ECombatState::ECS_MAX;
+
+	return Combat->CombatState;
 }

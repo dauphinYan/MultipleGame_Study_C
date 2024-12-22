@@ -61,6 +61,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bIsAiming);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
+	DOREPLIFETIME(UCombatComponent, CombatState);
 }
 
 void UCombatComponent::OnRegister()
@@ -104,18 +105,47 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 void UCombatComponent::Reload()
 {
-	if (CarriedAmmo > 0)
+	if (CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
 	{
 		Server_Reload();
+	}
+}
+
+void UCombatComponent::FinishReloading()
+{
+	if (Character_WhiteMan == nullptr) return;
+	if (Character_WhiteMan->HasAuthority())
+	{
+		CombatState = ECombatState::ECS_Unoccupied;
 	}
 }
 
 void UCombatComponent::Server_Reload_Implementation()
 {
 	if (Character_WhiteMan == nullptr) return;
+	CombatState = ECombatState::ECS_Reloading;
+	HandleReload();
+}
 
+void UCombatComponent::HandleReload()
+{
 	Character_WhiteMan->PlayReloadMontage();
+}
 
+void UCombatComponent::OnRep_CombatState()
+{
+	switch (CombatState)
+	{
+	case ECombatState::ECS_Unoccupied:
+		break;
+	case ECombatState::ECS_Reloading:
+		HandleReload();
+		break;
+	case ECombatState::ECS_MAX:
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -278,7 +308,6 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 	}
 }
 
-
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
@@ -363,5 +392,3 @@ void UCombatComponent::InitializeCarriedAmmo()
 {
 	CarriedAmmoMap.Emplace(EWeaponType::EWT_AssaultRifle, StartingAirAmmo);
 }
-
-

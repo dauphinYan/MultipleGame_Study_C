@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "MultipleGame_Study_C/CharacterTypes/TurningInPlace.h"
 #include "MultipleGame_Study_C/Interface/InteractWithCrosshairsInterface.h"
+#include "MultipleGame_Study_C/CharacterTypes/CombatState.h"
 #include "Charactor_WhiteMan.generated.h"
 
 UCLASS()
@@ -44,7 +45,7 @@ protected:
 	void AimButtonPressed();
 	void AimButtonReleased();
 	void FireButtonPressed();
-	void FireButtonReleased();	
+	void FireButtonReleased();
 	void ReloadButtonPressed();
 	void PlayHitReactMontage();
 
@@ -60,7 +61,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 	class UCameraComponent* Camera;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
@@ -131,4 +132,5 @@ public:
 	FORCEINLINE bool IsElimmed()const { return bElimmed; }
 	FORCEINLINE float GetCurHealth()const { return CurHealth; };
 	FORCEINLINE float GetMaxHealth()const { return MaxHealth; };
+	ECombatState GetCombatState() const;
 };
