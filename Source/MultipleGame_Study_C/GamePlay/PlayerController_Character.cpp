@@ -26,6 +26,53 @@ void APlayerController_Character::BeginPlay()
 	CharacterHUD = Cast<AHUD_Character>(GetHUD());
 }
 
+void APlayerController_Character::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	SetHUDTime();
+	CheckTimeSync(DeltaTime);
+}
+
+void APlayerController_Character::CheckTimeSync(float DeltaTime)
+{
+	
+	TimeSysncRunningTime += DeltaTime;
+	if (IsLocalController() && TimeSysncRunningTime > TimeSyncFrequency)
+	{
+		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
+		TimeSysncRunningTime = 0.f;
+	}
+}
+
+float APlayerController_Character::GetServerTime()
+{
+	return GetWorld()->GetTimeSeconds() + ClientServerDelta;
+}
+
+void APlayerController_Character::ReceivedPlayer()
+{
+	Super::ReceivedPlayer();
+	if (IsLocalController())
+	{
+		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
+	}
+}
+
+void APlayerController_Character::Server_RequestServerTime_Implementation(float TimeOfClientRequest)
+{
+	float ServerTimeOfReceipt = GetWorld()->GetTimeSeconds();
+	Client_ReportServerTime_Implementation(TimeOfClientRequest, ServerTimeOfReceipt);
+}
+
+void APlayerController_Character::Client_ReportServerTime_Implementation(float TimeOfClientRequest, float TimeServerReceivedClientRequest)
+{
+	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
+	float CurrentServerTime = TimeServerReceivedClientRequest + (0.5f * RoundTripTime);
+	//ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+	ClientServerDelta = FMath::Lerp(ClientServerDelta, CurrentServerTime - GetWorld()->GetTimeSeconds(), 0.1f);
+}
+
 void APlayerController_Character::SetHUDHealth(float Health, float MaxHealth)
 {
 	if (CharacterHUD == nullptr)
@@ -96,4 +143,32 @@ void APlayerController_Character::SetHUDCarriedAmmo(int32 Ammo)
 		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
 		CharacterHUD->CharacterOverlay->CarriedAmmoAmountText->SetText(FText::FromString(AmmoText));
 	}
+}
+
+void APlayerController_Character::SetHUDMatchCountdown(float CountdownTime)
+{
+	if (CharacterHUD == nullptr)
+	{
+		CharacterHUD = Cast<AHUD_Character>(GetHUD());
+	}
+
+	if (CharacterHUD && CharacterHUD->CharacterOverlay)
+	{
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		CharacterHUD->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(CountdownText));
+	}
+}
+
+void APlayerController_Character::SetHUDTime()
+{
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
+	if (CountdownInt != SecondsLeft)
+	{
+		SetHUDMatchCountdown(MatchTime - GetServerTime());
+	}
+
+	CountdownInt = SecondsLeft;
 }

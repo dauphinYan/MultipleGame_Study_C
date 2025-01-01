@@ -219,3 +219,9 @@ void AWeapon::Droppped()
 	CharacterOwnerController = nullptr;
 }
 
+void AWeapon::AddAmmo(int32 AmmoToAdd)
+{
+	Ammo = FMath::Clamp(Ammo - AmmoToAdd, 0, MaxCapacity);
+	SetHUDAmmo();
+}
+

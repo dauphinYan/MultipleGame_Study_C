@@ -29,6 +29,7 @@ public:
 	void ShowPickupWidget(bool bShow);
 	virtual void Fire(const FVector& HitTarget);
 	void Droppped();
+	void AddAmmo(int32 AmmoToAdd);
 
 	UPROPERTY(EditAnyWhere, Category = "CrossHairs")
 	class UTexture2D* CrosshairsCenter;
@@ -58,6 +59,9 @@ public:
 	bool bAutomatic = true;
 
 	void SetHUDAmmo();
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* EquipSound;
 
 protected:
 	virtual void BeginPlay() override;
@@ -120,4 +124,6 @@ public:
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 	bool IsEmpty();
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE int32 GetMaxCapacity() const { return MaxCapacity; }
 };

@@ -54,6 +54,8 @@ protected:
 
 	void HandleReload();
 
+	int32 AmountToReload();
+
 private:
 	class ACharactor_WhiteMan* Character_WhiteMan;
 	class APlayerController_Character* PlayerController;
@@ -124,4 +126,6 @@ private:
 
 	UFUNCTION()
 	void OnRep_CombatState();
+
+	void UpdateAmmoValues();
 };

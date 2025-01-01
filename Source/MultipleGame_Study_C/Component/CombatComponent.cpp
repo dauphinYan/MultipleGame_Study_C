@@ -13,6 +13,7 @@
 #include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
+#include "Sound/SoundCue.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -99,6 +100,15 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 		PlayerController->SetHUDCarriedAmmo(CarriedAmmo);
 	}
 
+	if (EquippedWeapon->EquipSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			EquippedWeapon->EquipSound,
+			Character_WhiteMan->GetActorLocation()
+		);
+	}
+
 	Character_WhiteMan->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character_WhiteMan->bUseControllerRotationYaw = true;
 }
@@ -117,12 +127,18 @@ void UCombatComponent::FinishReloading()
 	if (Character_WhiteMan->HasAuthority())
 	{
 		CombatState = ECombatState::ECS_Unoccupied;
+		UpdateAmmoValues();
+	}
+	if (bFireButtonPressed)
+	{
+		Fire();
 	}
 }
 
 void UCombatComponent::Server_Reload_Implementation()
 {
-	if (Character_WhiteMan == nullptr) return;
+	if (Character_WhiteMan == nullptr || EquippedWeapon == nullptr) return;
+
 	CombatState = ECombatState::ECS_Reloading;
 	HandleReload();
 }
@@ -132,11 +148,44 @@ void UCombatComponent::HandleReload()
 	Character_WhiteMan->PlayReloadMontage();
 }
 
+int32 UCombatComponent::AmountToReload()
+{
+	if (EquippedWeapon == nullptr) return 0;
+	int32 RoomInMag = EquippedWeapon->GetMaxCapacity() - EquippedWeapon->GetAmmo(); //需要填充的子弹数目
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		int32 AmountCarried = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+		int32 Least = FMath::Min(RoomInMag, AmountCarried);
+		return FMath::Clamp(RoomInMag, 0, Least);
+	}
+	return 0;
+}
+
+void UCombatComponent::UpdateAmmoValues()
+{
+	int32 ReloadAmount = AmountToReload();
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+	{
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmount;
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+	PlayerController = PlayerController == nullptr ? Cast<APlayerController_Character>(Character_WhiteMan->GetController()) : PlayerController;
+	if (PlayerController)
+	{
+		PlayerController->SetHUDCarriedAmmo(CarriedAmmo);
+	}
+	EquippedWeapon->AddAmmo(-ReloadAmount);
+}
+
 void UCombatComponent::OnRep_CombatState()
 {
 	switch (CombatState)
 	{
 	case ECombatState::ECS_Unoccupied:
+		if (bFireButtonPressed)
+		{
+			Fire();
+		}
 		break;
 	case ECombatState::ECS_Reloading:
 		HandleReload();
@@ -148,11 +197,18 @@ void UCombatComponent::OnRep_CombatState()
 	}
 }
 
-
 void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippedWeapon && Character_WhiteMan)
 	{
+		if (EquippedWeapon->EquipSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(
+				this,
+				EquippedWeapon->EquipSound,
+				Character_WhiteMan->GetActorLocation()
+			);
+		}
 		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 		const USkeletalMeshSocket* HandRSocket = Character_WhiteMan->GetMesh()->GetSocketByName(FName("hand_r_socket"));
 		if (HandRSocket)
@@ -342,7 +398,7 @@ void UCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& 
 {
 	if (EquippedWeapon == nullptr)
 		return;
-	if (Character_WhiteMan)
+	if (Character_WhiteMan && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		Character_WhiteMan->PlayFireMontage(bIsAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
@@ -369,6 +425,11 @@ void UCombatComponent::FireTimerFinished()
 		Fire();
 	}
 
+	if (EquippedWeapon->IsEmpty())
+	{
+		Reload();
+	}
+
 }
 
 bool UCombatComponent::CanFire()
@@ -376,7 +437,7 @@ bool UCombatComponent::CanFire()
 	if (EquippedWeapon == nullptr)
 		return false;
 
-	return !EquippedWeapon->IsEmpty() || !bCanFire;
+	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::OnRep_CarriedAmmo()
