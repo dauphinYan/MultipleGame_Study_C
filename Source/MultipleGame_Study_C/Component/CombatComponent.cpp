@@ -151,7 +151,7 @@ void UCombatComponent::HandleReload()
 int32 UCombatComponent::AmountToReload()
 {
 	if (EquippedWeapon == nullptr) return 0;
-	int32 RoomInMag = EquippedWeapon->GetMaxCapacity() - EquippedWeapon->GetAmmo(); //需要填充的子弹数目
+	int32 RoomInMag = EquippedWeapon->GetMaxCapacity() - EquippedWeapon->GetAmmo(); //闇�瑕佸～鍏呯殑瀛愬脊鏁扮洰
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
 		int32 AmountCarried = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
