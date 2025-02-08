@@ -15,21 +15,26 @@ class MULTIPLEGAME_STUDY_C_API APlayerController_Character : public APlayerContr
 	GENERATED_BODY()
 
 public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void Tick(float DeltaTime) override;
+
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
+	void SetHUDTime();
 	void SetHUDWeaponAmmo(int32 Ammo);
 	void SetHUDCarriedAmmo(int32 Ammo);
 	void SetHUDMatchCountdown(float CountdownTime);
-	virtual void OnPossess(APawn* InPawn) override;
-	virtual void Tick(float DeltaTime) override;
 	virtual float GetServerTime();
 	virtual void ReceivedPlayer() override;
 	void CheckTimeSync(float DeltaTime);
+	void OnMatchStateSet(FName State);
 protected:
 	virtual void BeginPlay() override;
 
-	void SetHUDTime();
+	void PollInit();
+
 
 	UFUNCTION(Server, Reliable)
 	void Server_RequestServerTime(float TimeOfClientRequest);
@@ -45,7 +50,17 @@ protected:
 	float TimeSysncRunningTime = 0.f;
 private:
 	class AHUD_Character* CharacterHUD;
+	class ACharactor_WhiteMan* Character_WhiteMan;
 
 	float MatchTime = 120.f;
 	uint32 CountdownInt = 0;
+
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
+	FName MatchState;
+
+	UFUNCTION()
+	void OnRep_MatchState();
+
+	UPROPERTY()
+	class UCharacterOverlay* CharacterOverlay;
 };

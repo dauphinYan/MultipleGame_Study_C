@@ -8,7 +8,7 @@ void AHUD_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AddCharacterOverlay();
+	//AddCharacterOverlay();
 }
 
 void AHUD_Character::AddCharacterOverlay()

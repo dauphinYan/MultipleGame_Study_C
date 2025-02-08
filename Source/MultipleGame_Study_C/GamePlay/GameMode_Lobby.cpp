@@ -3,3 +3,7 @@
 
 #include "GameMode_Lobby.h"
 
+AGameMode_Lobby::AGameMode_Lobby()
+{
+	bDelayedStart = true;
+}

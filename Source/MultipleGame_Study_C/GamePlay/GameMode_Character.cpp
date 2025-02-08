@@ -8,6 +8,46 @@
 #include "GameFramework/PlayerStart.h"
 #include "MultipleGame_Study_C/GamePlay/PlayerState_Character.h"
 
+AGameMode_Character::AGameMode_Character()
+{
+	bDelayedStart = true;
+}
+
+void AGameMode_Character::BeginPlay()
+{
+	Super::BeginPlay();
+
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+void AGameMode_Character::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (MatchState == MatchState::WaitingToStart)
+	{
+		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+		if (CountdownTime <= 0.f)
+		{
+			StartMatch();
+		}
+	}
+}
+
+void AGameMode_Character::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController_Character* Player = Cast<APlayerController_Character>(*It);
+		if (Player)
+		{
+			Player->OnMatchStateSet(MatchState);
+		}
+	}
+}
+
 void AGameMode_Character::PlayerEliminated(ACharactor_WhiteMan* ElimmedCharacter, APlayerController_Character* VictimController, APlayerController_Character* AttackerController)
 {
 	APlayerState_Character* AttackerPlayerState = AttackerController ? Cast<APlayerState_Character>(AttackerController->PlayerState) : nullptr;

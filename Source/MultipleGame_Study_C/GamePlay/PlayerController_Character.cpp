@@ -7,12 +7,21 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
+#include "Net/UnrealNetwork.h"
+#include "MultipleGame_Study_C/GamePlay/GameMode_Character.h"
+
+void APlayerController_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APlayerController_Character, MatchState);
+}
 
 void APlayerController_Character::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	ACharactor_WhiteMan* Character_WhiteMan = Cast <ACharactor_WhiteMan>(InPawn);
+	Character_WhiteMan = Cast <ACharactor_WhiteMan>(InPawn);
 	if (Character_WhiteMan)
 	{
 		SetHUDHealth(Character_WhiteMan->GetCurHealth(), Character_WhiteMan->GetMaxHealth());
@@ -36,12 +45,39 @@ void APlayerController_Character::Tick(float DeltaTime)
 
 void APlayerController_Character::CheckTimeSync(float DeltaTime)
 {
-	
 	TimeSysncRunningTime += DeltaTime;
 	if (IsLocalController() && TimeSysncRunningTime > TimeSyncFrequency)
 	{
 		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
 		TimeSysncRunningTime = 0.f;
+	}
+}
+
+void APlayerController_Character::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+
+	if (MatchState == MatchState::InProgress)
+	{
+		CharacterHUD = CharacterHUD == nullptr ? Cast<AHUD_Character>(GetHUD()) : CharacterHUD;
+		if (CharacterHUD)
+		{
+			CharacterHUD->AddCharacterOverlay();
+			PollInit();
+		}
+	}
+}
+
+void APlayerController_Character::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		CharacterHUD = CharacterHUD == nullptr ? Cast<AHUD_Character>(GetHUD()) : CharacterHUD;
+		if (CharacterHUD)
+		{
+			CharacterHUD->AddCharacterOverlay();
+			PollInit();
+		}
 	}
 }
 
@@ -162,6 +198,27 @@ void APlayerController_Character::SetHUDMatchCountdown(float CountdownTime)
 	}
 }
 
+void APlayerController_Character::PollInit()
+{
+	if (CharacterOverlay == nullptr)
+	{
+		if (CharacterHUD && CharacterHUD->CharacterOverlay)
+		{
+			CharacterOverlay = CharacterHUD->CharacterOverlay;
+			if (CharacterOverlay)
+			{
+				Character_WhiteMan = Cast <ACharactor_WhiteMan>(GetCharacter());
+				if (Character_WhiteMan)
+				{
+					SetHUDHealth(Character_WhiteMan->GetCurHealth(), Character_WhiteMan->GetMaxHealth());
+				}
+
+			}
+		}
+	}
+
+}
+
 void APlayerController_Character::SetHUDTime()
 {
 	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
@@ -172,3 +229,5 @@ void APlayerController_Character::SetHUDTime()
 
 	CountdownInt = SecondsLeft;
 }
+
+

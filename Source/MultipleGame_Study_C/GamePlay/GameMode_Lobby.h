@@ -13,5 +13,7 @@ UCLASS()
 class MULTIPLEGAME_STUDY_C_API AGameMode_Lobby : public AGameMode
 {
 	GENERATED_BODY()
-	
+
+public:
+	AGameMode_Lobby();
 };
