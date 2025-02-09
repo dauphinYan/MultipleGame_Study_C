@@ -60,6 +60,7 @@ void APlayerController_Character::OnMatchStateSet(FName State)
 	if (MatchState == MatchState::InProgress)
 	{
 		CharacterHUD = CharacterHUD == nullptr ? Cast<AHUD_Character>(GetHUD()) : CharacterHUD;
+		UE_LOG(LogTemp, Log, TEXT("Here1."));
 		if (CharacterHUD)
 		{
 			CharacterHUD->AddCharacterOverlay();
