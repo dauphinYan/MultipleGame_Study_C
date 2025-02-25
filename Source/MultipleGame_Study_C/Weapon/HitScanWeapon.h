@@ -7,15 +7,27 @@
 #include "HitScanWeapon.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MULTIPLEGAME_STUDY_C_API AHitScanWeapon : public AWeapon
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void Fire(const FVector& HitTarget) override;
+
+protected:
+	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
+
+	UPROPERTY(EditDefaultsOnly)
+	float DistanceToSphere = 800.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float SphereRadius = 75.f;
+
+	bool bUseScatter = false;
+
 private:
 	UPROPERTY(EditDefaultsOnly)
 	float Damage = 20.f;
