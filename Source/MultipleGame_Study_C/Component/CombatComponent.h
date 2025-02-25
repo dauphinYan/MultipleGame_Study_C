@@ -89,12 +89,12 @@ private:
 
 	float DefaultFOV;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere)
 	float ZoomFOV = 30.f;
 
 	float CurrentFOV;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere)
 	float ZoomInterpSpeed = 20.f;
 
 	void InterpFOV(float DeltaTime);
@@ -120,7 +120,13 @@ private:
 	int32 StartingAirAmmo = 30;
 
 	UPROPERTY(EditAnywhere)
-	int32 StartingRocketAmmo = 4;
+	int32 StartingRocketAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingPistolAmmo = 0;
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingSMGAmmo = 60;
 
 	void InitializeCarriedAmmo();
 

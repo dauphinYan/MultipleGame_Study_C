@@ -52,10 +52,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CrossHairs")
 	float ZoomInterpSpeed = 20.f;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere)
 	float FireDelay = 0.15f;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere)
 	bool bAutomatic = true;
 
 	void SetHUDAmmo();
@@ -74,28 +74,28 @@ protected:
 	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Property")
+	UPROPERTY(VisibleAnywhere)
 	class USphereComponent* Sphere;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Property")
+	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* WeaponMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Property")
+	UPROPERTY(VisibleAnywhere)
 	class UWidgetComponent* PickupWidget;
 
-	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Property")
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere)
 	EWeaponState WeaponState;
 
 	UFUNCTION()
 	void OnRep_WeaponState();
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Property")
+	UPROPERTY(EditAnywhere)
 	class UAnimationAsset* FireAnimation;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Property")
+	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACasing> CasingClass;
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Property", ReplicatedUsing = OnRep_Ammo)
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
 	int32 Ammo;
 
 	UFUNCTION()
@@ -103,7 +103,7 @@ private:
 
 	void SpendRound();
 
-	UPROPERTY(EditAnywhere, Category = "Weapon Property")
+	UPROPERTY(EditAnywhere)
 	int32 MaxCapacity;
 
 	UPROPERTY()
