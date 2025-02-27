@@ -19,6 +19,7 @@ public:
 
 protected:
 	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
+	void WeaponTraceHit(const FVector& Start, const FVector& HitTarget, FHitResult& OutHit);
 
 	UPROPERTY(EditDefaultsOnly)
 	float DistanceToSphere = 800.f;
@@ -26,6 +27,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float SphereRadius = 75.f;
 
+	UPROPERTY(EditDefaultsOnly)
 	bool bUseScatter = false;
 
 private:
