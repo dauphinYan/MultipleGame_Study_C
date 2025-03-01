@@ -21,10 +21,57 @@ void AShotGun::Fire(const FVector& HitTarget)
 	{
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetWeaponMesh());
 		FVector Start = SocketTransform.GetLocation();
-		
+
+		TMap<ACharactor_WhiteMan*, uint32> HitMap;
 		for (uint32 i = 0; i < NumberOfPellets; i++)
 		{
-			FVector End = TraceEndWithScatter(Start, HitTarget);
+			FHitResult FireHit;
+			WeaponTraceHit(Start, HitTarget, FireHit);
+
+			ACharactor_WhiteMan* Charactor_WhiteMan = Cast<ACharactor_WhiteMan>(FireHit.GetActor());
+			if (Charactor_WhiteMan && HasAuthority() && InstigatorController)
+			{
+				if (HitMap.Contains(Charactor_WhiteMan))
+				{
+					HitMap[Charactor_WhiteMan]++;
+				}
+				else
+				{
+					HitMap.Emplace(Charactor_WhiteMan, 1);
+				}
+			}
+			if (ImpactParticles)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(
+					GetWorld(),
+					ImpactParticles,
+					FireHit.ImpactPoint,
+					FireHit.ImpactNormal.Rotation()
+				);
+			}
+			if (HitSound)
+			{
+				UGameplayStatics::PlaySoundAtLocation(
+					GetWorld(),
+					HitSound,
+					FireHit.ImpactPoint,
+					.5f,
+					FMath::FRandRange(-.5f, .5f)
+				);
+			}
+		}
+		for (auto HitPair : HitMap)
+		{
+			if (HitPair.Key && HasAuthority() && InstigatorController)
+			{
+				UGameplayStatics::ApplyDamage(
+					HitPair.Key,
+					Damage * HitPair.Value,
+					InstigatorController,
+					this,
+					UDamageType::StaticClass()
+				);
+			}
 		}
 	}
 }

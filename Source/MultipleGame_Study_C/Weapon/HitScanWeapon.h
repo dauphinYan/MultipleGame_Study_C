@@ -30,10 +30,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	bool bUseScatter = false;
 
-private:
-	UPROPERTY(EditDefaultsOnly)
-	float Damage = 20.f;
-
 	UPROPERTY(EditDefaultsOnly)
 	class UParticleSystem* ImpactParticles;
 
@@ -41,11 +37,17 @@ private:
 	UParticleSystem* BeamParticles;
 
 	UPROPERTY(EditDefaultsOnly)
+	USoundCue* HitSound;
+
+	UPROPERTY(EditDefaultsOnly)
+	float Damage = 20.f;
+
+private:
+	UPROPERTY(EditDefaultsOnly)
 	UParticleSystem* MuzzleFlash;
 
 	UPROPERTY(EditDefaultsOnly)
 	USoundCue* FireSound;
 
-	UPROPERTY(EditDefaultsOnly)
-	USoundCue* HitSound;
+
 };

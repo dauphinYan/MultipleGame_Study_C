@@ -27,6 +27,10 @@ public:
 	void Elim();
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Elim();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowSniperScopeWidget(bool bShowScope);
+
 protected:
 	virtual void BeginPlay() override;
 	void PollInit();
