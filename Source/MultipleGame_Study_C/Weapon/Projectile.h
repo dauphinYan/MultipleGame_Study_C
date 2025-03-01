@@ -23,6 +23,20 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float Damage = 20.f;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UNiagaraSystem* TrailSystem;
+
+	void SpawnTrailSystem();
+
+	UPROPERTY(EditDefaultsOnly)
+	UStaticMeshComponent* ProjectileMesh;
+
+	void StartDestroyTimer();
+	void DestroyTimerFinished();
+
+	UPROPERTY(VisibleAnywhere)
+	class UProjectileMovementComponent* ProjectileMovementComponent;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Destroyed() override;
@@ -30,9 +44,6 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
-
-	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovementComponent;
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* Tracer;
@@ -44,4 +55,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* ImpactSound;
+
+	FTimerHandle DestroyTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DestroyTime = 3.f;
 };

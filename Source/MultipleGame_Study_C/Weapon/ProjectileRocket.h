@@ -21,15 +21,5 @@ protected:
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpluse, const FHitResult& Hit) override;
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly)
-	class UNiagaraSystem* TrailSystem;
 
-private:
-	UPROPERTY(EditDefaultsOnly)
-	UStaticMeshComponent* RocketMesh;
-
-	FTimerHandle DestroyTimer;
-
-	UPROPERTY(EditDefaultsOnly)
-	float DestroyTime = 3.f;
 };

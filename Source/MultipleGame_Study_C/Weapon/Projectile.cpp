@@ -7,6 +7,7 @@
 #include "Sound/SoundCue.h"
 #include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
 #include "MultipleGame_Study_C/MultipleGame_Study_C.h"
+#include "NiagaraFunctionLibrary.h"
 
 AProjectile::AProjectile()
 {
@@ -24,7 +25,7 @@ AProjectile::AProjectile()
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-
+	ProjectileMovementComponent->bShouldBounce = true;
 }
 
 void AProjectile::BeginPlay()
@@ -34,7 +35,7 @@ void AProjectile::BeginPlay()
 	if (Tracer)
 	{
 		TracerComponent = UGameplayStatics::SpawnEmitterAttached(
-			Tracer, 
+			Tracer,
 			CollisionBox,
 			FName(),
 			GetActorLocation(),
@@ -51,7 +52,6 @@ void AProjectile::BeginPlay()
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpluse, const FHitResult& Hit)
 {
-
 	Destroy();
 }
 
@@ -69,6 +69,38 @@ void AProjectile::Destroyed()
 	}
 }
 
+
+void AProjectile::SpawnTrailSystem()
+{
+	if (TrailSystem)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAttached(
+			TrailSystem,
+			GetRootComponent(),
+			FName(),
+			GetActorLocation(),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition,
+			true
+		);
+	}
+}
+
+void AProjectile::StartDestroyTimer()
+{
+	GetWorld()->GetTimerManager().SetTimer(
+		DestroyTimer,
+		this,
+		&AProjectile::DestroyTimerFinished,
+		DestroyTime,
+		false
+	);
+}
+
+void AProjectile::DestroyTimerFinished()
+{
+	Destroy();
+}
 
 void AProjectile::Tick(float DeltaTime)
 {
