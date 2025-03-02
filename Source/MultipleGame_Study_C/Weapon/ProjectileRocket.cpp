@@ -33,30 +33,7 @@ AProjectileRocket::AProjectileRocket()
 
 void AProjectileRocket::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpluse, const FHitResult& Hit)
 {
-	APawn* FiringPawn = GetInstigator();
-	if (FiringPawn)
-	{
-		AController* FiringController = FiringPawn->GetController();
-		if (FiringController)
-		{
-			UGameplayStatics::ApplyRadialDamageWithFalloff(
-				this,
-				Damage,
-				10.f,
-				GetActorLocation(),
-				200.f,
-				500.f,
-				1.f,
-				UDamageType::StaticClass(),
-				TArray<AActor*>(),
-				this,
-				FiringController
-			);
-		}
-	}
-
-
-
+	ExplodeDamage();
 	Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpluse, Hit);
 }
 

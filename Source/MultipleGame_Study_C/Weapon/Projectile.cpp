@@ -102,6 +102,31 @@ void AProjectile::DestroyTimerFinished()
 	Destroy();
 }
 
+void AProjectile::ExplodeDamage()
+{
+	APawn* FiringPawn = GetInstigator();
+	if (FiringPawn)
+	{
+		AController* FiringController = FiringPawn->GetController();
+		if (FiringController)
+		{
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				this,
+				Damage,
+				10.f,
+				GetActorLocation(),
+				DamageInnerRadius,
+				DamageOutRadius,
+				1.f,
+				UDamageType::StaticClass(),
+				TArray<AActor*>(),
+				this,
+				FiringController
+			);
+		}
+	}
+}
+
 void AProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

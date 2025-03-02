@@ -1,0 +1,31 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "Pickup.generated.h"
+
+UCLASS()
+class MULTIPLEGAME_STUDY_C_API APickup : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	APickup();
+	virtual void Tick(float DeltaTime) override;
+	virtual void Destroyed() override;
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+	class USphereComponent* OverlapSphere;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundCue* PickupSound;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UStaticMeshComponent* PickupMesh;
+};

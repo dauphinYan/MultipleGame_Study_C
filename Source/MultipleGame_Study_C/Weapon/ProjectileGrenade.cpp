@@ -21,6 +21,13 @@ void AProjectileGrenade::BeginPlay()
 	ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &AProjectileGrenade::OnBounce);
 }
 
+void AProjectileGrenade::Destroyed()
+{
+	ExplodeDamage();
+
+	Super::Destroyed();
+}
+
 void AProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
 	if (BounceSound)

@@ -20,8 +20,13 @@ protected:
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpluse, const FHitResult& Hit);
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float Damage = 20.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DamageInnerRadius = 200.f;
+	UPROPERTY(EditDefaultsOnly)
+	float DamageOutRadius = 500.f;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UNiagaraSystem* TrailSystem;
@@ -33,6 +38,7 @@ protected:
 
 	void StartDestroyTimer();
 	void DestroyTimerFinished();
+	void ExplodeDamage();
 
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovementComponent;

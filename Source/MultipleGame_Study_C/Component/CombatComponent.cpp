@@ -247,7 +247,7 @@ void UCombatComponent::SetAiming(bool bAiming)
 	{
 		Character_WhiteMan->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
 	}
-	if (Character_WhiteMan->IsLocallyControlled() && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+	if (Character_WhiteMan->IsLocallyControlled() && EquippedWeapon && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
 	{
 		Character_WhiteMan->ShowSniperScopeWidget(bAiming);
 	}
