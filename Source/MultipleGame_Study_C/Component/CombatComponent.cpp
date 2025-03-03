@@ -161,6 +161,19 @@ int32 UCombatComponent::AmountToReload()
 	return 0;
 }
 
+void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
+{
+	if (CarriedAmmoMap.Contains(WeaponType))
+	{
+		CarriedAmmoMap[WeaponType] += FMath::Clamp(CarriedAmmoMap[WeaponType]+AmmoAmount,0,MaxCarriedAmmo);
+		UpdateAmmoValues();
+	}
+	if (EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == WeaponType)
+	{
+		Reload();
+	}
+}
+
 void UCombatComponent::UpdateAmmoValues()
 {
 	int32 ReloadAmount = AmountToReload();
@@ -246,11 +259,13 @@ void UCombatComponent::SetAiming(bool bAiming)
 	if (Character_WhiteMan)
 	{
 		Character_WhiteMan->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+
+		if (Character_WhiteMan->IsLocallyControlled() && EquippedWeapon && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+		{
+			Character_WhiteMan->ShowSniperScopeWidget(bAiming);
+		}
 	}
-	if (Character_WhiteMan->IsLocallyControlled() && EquippedWeapon && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
-	{
-		Character_WhiteMan->ShowSniperScopeWidget(bAiming);
-	}
+
 }
 
 void UCombatComponent::Server_SetAiming_Implementation(bool bAiming)

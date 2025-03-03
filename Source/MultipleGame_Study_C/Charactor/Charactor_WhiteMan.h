@@ -134,7 +134,8 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const { return TurningInPlace; };
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return Camera; }
 	FORCEINLINE bool IsElimmed()const { return bElimmed; }
-	FORCEINLINE float GetCurHealth()const { return CurHealth; };
-	FORCEINLINE float GetMaxHealth()const { return MaxHealth; };
+	FORCEINLINE float GetCurHealth()const { return CurHealth; }
+	FORCEINLINE float GetMaxHealth()const { return MaxHealth; }
 	ECombatState GetCombatState() const;
+	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
 };

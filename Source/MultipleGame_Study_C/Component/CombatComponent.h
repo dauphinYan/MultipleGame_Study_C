@@ -27,6 +27,8 @@ public:
 	void Reload();
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
+
+	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
 protected:
 	virtual void BeginPlay() override;
 
@@ -115,6 +117,9 @@ private:
 	void OnRep_CarriedAmmo();
 
 	TMap<EWeaponType, int32> CarriedAmmoMap;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 MaxCarriedAmmo = 500;
 
 	UPROPERTY(EditDefaultsOnly)
 	int32 StartingAirAmmo = 30;
