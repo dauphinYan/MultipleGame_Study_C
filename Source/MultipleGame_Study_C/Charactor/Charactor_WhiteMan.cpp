@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFrameWork/CharacterMovementComponent.h"
 #include "MultipleGame_Study_C/Component/CombatComponent.h"
+#include "MultipleGame_Study_C/Component/BuffComponent.h"
 #include "MultipleGame_Study_C/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
@@ -39,6 +40,9 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
+
+	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
+	Buff->SetIsReplicated(true);
 
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
@@ -125,6 +129,10 @@ void ACharactor_WhiteMan::PostInitializeComponents()
 	if (Combat)
 	{
 		Combat->Character_WhiteMan = this;
+	}
+	if (Buff)
+	{
+		Buff->WhiteMan = this;
 	}
 }
 
