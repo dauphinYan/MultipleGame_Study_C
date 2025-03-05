@@ -132,7 +132,8 @@ void ACharactor_WhiteMan::PostInitializeComponents()
 	}
 	if (Buff)
 	{
-		Buff->WhiteMan = this;
+		Buff->Character = this;
+		Buff->SetInitialSpeed(GetCharacterMovement()->MaxWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched);
 	}
 }
 
@@ -432,10 +433,13 @@ void ACharactor_WhiteMan::ReceiveDamage(AActor* DamageActor, float Damage, const
 
 }
 
-void ACharactor_WhiteMan::OnRep_CurHealth()
+void ACharactor_WhiteMan::OnRep_CurHealth(float LastHealth)
 {
-	PlayHitReactMontage();
 	UpdateHealth();
+	if (CurHealth < LastHealth)
+	{
+		PlayHitReactMontage();
+	}
 }
 
 void ACharactor_WhiteMan::OnRep_OverlappingWeapon(AWeapon* LastWeapon)

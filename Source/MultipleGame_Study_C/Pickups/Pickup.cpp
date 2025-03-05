@@ -6,6 +6,8 @@
 #include "Sound/SoundCue.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 APickup::APickup()
 {
@@ -22,6 +24,9 @@ APickup::APickup()
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PickupMesh"));
 	PickupMesh->SetupAttachment(RootComponent);
 	PickupMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	PickupEffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("PickupEffectComponent"));
+	PickupEffectComponent->SetupAttachment(RootComponent);
 }
 
 void APickup::BeginPlay()
@@ -60,5 +65,16 @@ void APickup::Destroyed()
 			PickupSound,
 			GetActorLocation()
 		);
+	}
+
+	if (PickupEffect)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			PickupEffect,
+			GetActorLocation(),
+			GetActorRotation()
+		);
+
 	}
 }

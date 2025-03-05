@@ -31,11 +31,11 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
 
+	void UpdateHealth();
+
 protected:
 	virtual void BeginPlay() override;
 	void PollInit();
-
-	void UpdateHealth();
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -112,7 +112,7 @@ private:
 	float CurHealth = 100.f;
 
 	UFUNCTION()
-	void OnRep_CurHealth();
+	void OnRep_CurHealth(float LastHealth);
 
 	UPROPERTY()
 	class APlayerController_Character* CharacterPlayerController;
@@ -138,6 +138,7 @@ public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return Camera; }
 	FORCEINLINE bool IsElimmed()const { return bElimmed; }
 	FORCEINLINE float GetCurHealth()const { return CurHealth; }
+	FORCEINLINE void SetHealth(float Amount) { CurHealth = Amount; }
 	FORCEINLINE float GetMaxHealth()const { return MaxHealth; }
 	ECombatState GetCombatState() const;
 	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
