@@ -44,6 +44,12 @@ void UBuffComponent::HealRampUp(float DeltaTime)
 	}
 }
 
+void UBuffComponent::SetInitialSpeed(float BaseSpeed, float CrouchSpeed)
+{
+	InitialBaseSpeed = BaseSpeed;
+	InitialCrouchSpeed = CrouchSpeed;
+}
+
 void UBuffComponent::BuffSpeed(float BaseSpeed, float CrouchSpeed, float BuffTime)
 {
 	if (Character == nullptr) return;
@@ -63,12 +69,6 @@ void UBuffComponent::BuffSpeed(float BaseSpeed, float CrouchSpeed, float BuffTim
 	);
 }
 
-void UBuffComponent::SetInitialSpeed(float BaseSpeed, float CrouchSpeed)
-{
-	InitialBaseSpeed = BaseSpeed;
-	InitialCrouchSpeed = CrouchSpeed;
-}
-
 void UBuffComponent::ResetSpeed()
 {
 	if (Character == nullptr || Character->GetCharacterMovement() == nullptr) return;
@@ -80,8 +80,9 @@ void UBuffComponent::ResetSpeed()
 
 void UBuffComponent::Multicast_SpeedBuff_Implementation(float BaseSpeed, float CrouchSpeed)
 {
-	Character->GetCharacterMovement()->MaxWalkSpeed = InitialBaseSpeed;
-	Character->GetCharacterMovement()->MaxWalkSpeedCrouched = InitialCrouchSpeed;
-	UE_LOG(LogTemp, Warning, TEXT("Current Walk Speed: %f"), Character->GetCharacterMovement()->MaxWalkSpeed);
+	if (Character && Character->GetCharacterMovement())
+	{
+		Character->GetCharacterMovement()->MaxWalkSpeed = BaseSpeed;
+		Character->GetCharacterMovement()->MaxWalkSpeedCrouched = CrouchSpeed;
+	}
 }
-

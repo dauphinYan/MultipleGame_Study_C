@@ -13,7 +13,6 @@ void ASpeedPickup::OnSphereOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 		if (Buff)
 		{
 			Buff->BuffSpeed(BaseSpeedBuff, CrouchSpeedBuff, SpeedBuffTime);
-			
 		}
 	}
 	Destroy();
