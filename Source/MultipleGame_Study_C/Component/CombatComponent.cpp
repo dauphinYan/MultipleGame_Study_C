@@ -23,6 +23,15 @@ UCombatComponent::UCombatComponent()
 	AimWalkSpeed = 300.f;
 }
 
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, bIsAiming);
+	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
+	DOREPLIFETIME(UCombatComponent, CombatState);
+}
+
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -56,19 +65,23 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	}
 }
 
-void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UCombatComponent::InterpFOV(float DeltaTime)
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
-	DOREPLIFETIME(UCombatComponent, bIsAiming);
-	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
-	DOREPLIFETIME(UCombatComponent, CombatState);
-}
+	if (EquippedWeapon == nullptr)
+		return;
 
-void UCombatComponent::OnRegister()
-{
-	Super::OnRegister();
-	PrimaryComponentTick.bCanEverTick = true;
+	if (bIsAiming)
+	{
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, EquippedWeapon->GetZoomedFOV(), DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
+	}
+	else
+	{
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV, DeltaTime, ZoomInterpSpeed);
+	}
+	if (Character_WhiteMan && Character_WhiteMan->GetFollowCamera())
+	{
+		Character_WhiteMan->GetFollowCamera()->SetFieldOfView(CurrentFOV);
+	}
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -111,6 +124,38 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 	Character_WhiteMan->GetCharacterMovement()->bOrientRotationToMovement = false;
 	Character_WhiteMan->bUseControllerRotationYaw = true;
+}
+
+void UCombatComponent::OnRep_EquippedWeapon()
+{
+	if (EquippedWeapon && Character_WhiteMan)
+	{
+		if (EquippedWeapon->EquipSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(
+				this,
+				EquippedWeapon->EquipSound,
+				Character_WhiteMan->GetActorLocation()
+			);
+		}
+		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		const USkeletalMeshSocket* HandRSocket = Character_WhiteMan->GetMesh()->GetSocketByName(FName("hand_r_socket"));
+		if (HandRSocket)
+		{
+			HandRSocket->AttachActor(EquippedWeapon, Character_WhiteMan->GetMesh());
+		}
+		Character_WhiteMan->GetCharacterMovement()->bOrientRotationToMovement = false;
+		Character_WhiteMan->bUseControllerRotationYaw = true;
+	}
+}
+
+void UCombatComponent::OnRep_CarriedAmmo()
+{
+	PlayerController = PlayerController == nullptr ? Cast<APlayerController_Character>(Character_WhiteMan->GetController()) : PlayerController;
+	if (PlayerController)
+	{
+		PlayerController->SetHUDCarriedAmmo(CarriedAmmo);
+	}
 }
 
 void UCombatComponent::Reload()
@@ -170,7 +215,6 @@ void UCombatComponent::PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount)
 		{
 			UpdateAmmoValues();
 		}
-
 	}
 	if (EquippedWeapon && EquippedWeapon->IsEmpty() && EquippedWeapon->GetWeaponType() == WeaponType)
 	{
@@ -211,48 +255,6 @@ void UCombatComponent::OnRep_CombatState()
 		break;
 	default:
 		break;
-	}
-}
-
-void UCombatComponent::OnRep_EquippedWeapon()
-{
-	if (EquippedWeapon && Character_WhiteMan)
-	{
-		if (EquippedWeapon->EquipSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(
-				this,
-				EquippedWeapon->EquipSound,
-				Character_WhiteMan->GetActorLocation()
-			);
-		}
-		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
-		const USkeletalMeshSocket* HandRSocket = Character_WhiteMan->GetMesh()->GetSocketByName(FName("hand_r_socket"));
-		if (HandRSocket)
-		{
-			HandRSocket->AttachActor(EquippedWeapon, Character_WhiteMan->GetMesh());
-		}
-		Character_WhiteMan->GetCharacterMovement()->bOrientRotationToMovement = false;
-		Character_WhiteMan->bUseControllerRotationYaw = true;
-	}
-}
-
-void UCombatComponent::InterpFOV(float DeltaTime)
-{
-	if (EquippedWeapon == nullptr)
-		return;
-
-	if (bIsAiming)
-	{
-		CurrentFOV = FMath::FInterpTo(CurrentFOV, EquippedWeapon->GetZoomedFOV(), DeltaTime, EquippedWeapon->GetZoomInterpSpeed());
-	}
-	else
-	{
-		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV, DeltaTime, ZoomInterpSpeed);
-	}
-	if (Character_WhiteMan && Character_WhiteMan->GetFollowCamera())
-	{
-		Character_WhiteMan->GetFollowCamera()->SetFieldOfView(CurrentFOV);
 	}
 }
 
@@ -396,6 +398,14 @@ void UCombatComponent::FireButtonPressed(bool bPressed)
 	}
 }
 
+bool UCombatComponent::CanFire()
+{
+	if (EquippedWeapon == nullptr)
+		return false;
+
+	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
+}
+
 void UCombatComponent::Fire()
 {
 	if (CanFire())
@@ -409,7 +419,6 @@ void UCombatComponent::Fire()
 		}
 		StartFireTimer();
 	}
-
 }
 
 void UCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget)
@@ -453,23 +462,6 @@ void UCombatComponent::FireTimerFinished()
 		Reload();
 	}
 
-}
-
-bool UCombatComponent::CanFire()
-{
-	if (EquippedWeapon == nullptr)
-		return false;
-
-	return !EquippedWeapon->IsEmpty() && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
-}
-
-void UCombatComponent::OnRep_CarriedAmmo()
-{
-	PlayerController = PlayerController == nullptr ? Cast<APlayerController_Character>(Character_WhiteMan->GetController()) : PlayerController;
-	if (PlayerController)
-	{
-		PlayerController->SetHUDCarriedAmmo(CarriedAmmo);
-	}
 }
 
 void UCombatComponent::InitializeCarriedAmmo()

@@ -15,20 +15,14 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MULTIPLEGAME_STUDY_C_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	friend class ACharactor_WhiteMan;
 
 public:
 	UCombatComponent();
-	friend class ACharactor_WhiteMan;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual void OnRegister() override;
 
 	void EquipWeapon(AWeapon* WeaponToEquip);
-	void Reload();
-	UFUNCTION(BlueprintCallable)
-	void FinishReloading();
-
-	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
 protected:
 	virtual void BeginPlay() override;
 
@@ -47,10 +41,19 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Fire(const FVector_NetQuantize& TraceHitTarget);
 
+	void SetHUDCrosshairs(float DeltaTime);
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
-	void SetHUDCrosshairs(float DeltaTime);
 
+public:
+	void Reload();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
+
+	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
+
+protected:
 	UFUNCTION(Server, Reliable)
 	void Server_Reload();
 
@@ -62,6 +65,29 @@ private:
 	class ACharactor_WhiteMan* Character_WhiteMan;
 	class APlayerController_Character* PlayerController;
 	class AHUD_Character* HUD;
+
+	FHUDPackage HUDPackage;
+	float CrosshairsVelocityFactor;
+	float CrosshairsInAirFactor = 0.f;
+	float CrosshairsAimFactor;
+	float CrosshairsShootFactor;
+
+	float DefaultFOV;
+	float CurrentFOV;
+
+	UPROPERTY(EditAnywhere)
+	float ZoomFOV = 30.f;
+
+	UPROPERTY(EditAnywhere)
+	float ZoomInterpSpeed = 20.f;
+
+	void InterpFOV(float DeltaTime);
+
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
+
+	UFUNCTION()
+	void OnRep_CombatState();
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
@@ -80,35 +106,15 @@ private:
 
 	bool bFireButtonPressed;
 
-	FHitResult HitResult;
-
-	FHUDPackage HUDPackage;
-
-	float CrosshairsVelocityFactor;
-	float CrosshairsInAirFactor = 0.f;
-	float CrosshairsAimFactor;
-	float CrosshairsShootFactor;
-
-	float DefaultFOV;
-
-	UPROPERTY(EditAnywhere)
-	float ZoomFOV = 30.f;
-
-	float CurrentFOV;
-
-	UPROPERTY(EditAnywhere)
-	float ZoomInterpSpeed = 20.f;
-
-	void InterpFOV(float DeltaTime);
-
 	FTimerHandle FireTimer;
 
 	bool bCanFire = true;
+	bool CanFire();
 
 	void StartFireTimer();
 	void FireTimerFinished();
 
-	bool CanFire();
+	FHitResult HitResult;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
 	int32 CarriedAmmo;
@@ -143,12 +149,5 @@ private:
 	int32 StartingGrenadeLauncherAmmo = 0;
 
 	void InitializeCarriedAmmo();
-
-	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
-	ECombatState CombatState = ECombatState::ECS_Unoccupied;
-
-	UFUNCTION()
-	void OnRep_CombatState();
-
 	void UpdateAmmoValues();
 };
