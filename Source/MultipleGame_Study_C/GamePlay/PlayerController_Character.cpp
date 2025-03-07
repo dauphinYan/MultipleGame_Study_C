@@ -47,16 +47,6 @@ void APlayerController_Character::OnPossess(APawn* InPawn)
 	}
 }
 
-void APlayerController_Character::CheckTimeSync(float DeltaTime)
-{
-	TimeSysncRunningTime += DeltaTime;
-	if (IsLocalController() && TimeSysncRunningTime > TimeSyncFrequency)
-	{
-		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
-		TimeSysncRunningTime = 0.f;
-	}
-}
-
 void APlayerController_Character::OnMatchStateSet(FName State)
 {
 	MatchState = State;
@@ -73,20 +63,6 @@ void APlayerController_Character::OnMatchStateSet(FName State)
 	}
 }
 
-void APlayerController_Character::CheckPing(float DeltaTime)
-{
-	HighPingRunningTime += DeltaTime;
-	if (HighPingRunningTime > CheckPingFrequency)
-	{
-		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState_Character>() : PlayerState;
-		if (PlayerState)
-		{
-			HighPingWarning(PlayerState->GetPingInMilliseconds() > HighPingThreshold);
-		}
-		HighPingRunningTime = 0.f;
-	}
-}
-
 void APlayerController_Character::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
@@ -100,9 +76,37 @@ void APlayerController_Character::OnRep_MatchState()
 	}
 }
 
-float APlayerController_Character::GetServerTime()
+void APlayerController_Character::PollInit()
 {
-	return GetWorld()->GetTimeSeconds() + ClientServerDelta;
+	if (CharacterOverlay == nullptr)
+	{
+		if (CharacterHUD && CharacterHUD->CharacterOverlay)
+		{
+			CharacterOverlay = CharacterHUD->CharacterOverlay;
+			if (CharacterOverlay)
+			{
+				Character_WhiteMan = Cast <ACharactor_WhiteMan>(GetCharacter());
+				if (Character_WhiteMan)
+				{
+					SetHUDHealth(Character_WhiteMan->GetCurHealth(), Character_WhiteMan->GetMaxHealth());
+					return;
+				}
+
+			}
+		}
+	}
+	FTimerHandle TimerHandle_PollInit;
+	GetWorldTimerManager().SetTimer(TimerHandle_PollInit, this, &APlayerController_Character::PollInit, 0.1f, false);
+}
+
+void APlayerController_Character::CheckTimeSync(float DeltaTime)
+{
+	TimeSysncRunningTime += DeltaTime;
+	if (IsLocalController() && TimeSysncRunningTime > TimeSyncFrequency)
+	{
+		Server_RequestServerTime(GetWorld()->GetTimeSeconds());
+		TimeSysncRunningTime = 0.f;
+	}
 }
 
 void APlayerController_Character::ReceivedPlayer()
@@ -124,8 +128,21 @@ void APlayerController_Character::Client_ReportServerTime_Implementation(float T
 {
 	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
 	float CurrentServerTime = TimeServerReceivedClientRequest + (0.5f * RoundTripTime);
-	//ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
 	ClientServerDelta = FMath::Lerp(ClientServerDelta, CurrentServerTime - GetWorld()->GetTimeSeconds(), 0.1f);
+}
+
+void APlayerController_Character::CheckPing(float DeltaTime)
+{
+	HighPingRunningTime += DeltaTime;
+	if (HighPingRunningTime > CheckPingFrequency)
+	{
+		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState_Character>() : PlayerState;
+		if (PlayerState)
+		{
+			HighPingWarning(PlayerState->GetPingInMilliseconds() > HighPingThreshold);
+		}
+		HighPingRunningTime = 0.f;
+	}
 }
 
 void APlayerController_Character::HighPingWarning(bool bWarning)
@@ -142,7 +159,8 @@ void APlayerController_Character::HighPingWarning(bool bWarning)
 	{
 		if (bWarning)
 		{
-			CharacterHUD->CharacterOverlay->PlayAnimation(CharacterHUD->CharacterOverlay->HighPingAnimation);
+			CharacterHUD->CharacterOverlay->HighPingImage->SetOpacity(1.f);
+			CharacterHUD->CharacterOverlay->PlayAnimation(CharacterHUD->CharacterOverlay->HighPingAnimation, 0, 0);
 		}
 		else
 		{
@@ -244,25 +262,9 @@ void APlayerController_Character::SetHUDMatchCountdown(float CountdownTime)
 	}
 }
 
-void APlayerController_Character::PollInit()
+float APlayerController_Character::GetServerTime()
 {
-	if (CharacterOverlay == nullptr)
-	{
-		if (CharacterHUD && CharacterHUD->CharacterOverlay)
-		{
-			CharacterOverlay = CharacterHUD->CharacterOverlay;
-			if (CharacterOverlay)
-			{
-				Character_WhiteMan = Cast <ACharactor_WhiteMan>(GetCharacter());
-				if (Character_WhiteMan)
-				{
-					SetHUDHealth(Character_WhiteMan->GetCurHealth(), Character_WhiteMan->GetMaxHealth());
-				}
-
-			}
-		}
-	}
-
+	return GetWorld()->GetTimeSeconds() + ClientServerDelta;
 }
 
 void APlayerController_Character::SetHUDTime()
@@ -275,5 +277,3 @@ void APlayerController_Character::SetHUDTime()
 
 	CountdownInt = SecondsLeft;
 }
-
-
