@@ -18,6 +18,7 @@
 #include "TimerManager.h"
 #include "MultipleGame_Study_C/GamePlay/PlayerState_Character.h"
 #include "MultipleGame_Study_C/Weapon/WeaponTypes.h"
+#include "Kismet/GameplayStatics.h"
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
 {
@@ -60,6 +61,7 @@ void ACharactor_WhiteMan::BeginPlay()
 
 	if (HasAuthority())
 	{
+		SpawnDefaultWeapon();
 		OnTakeAnyDamage.AddDynamic(this, &ACharactor_WhiteMan::ReceiveDamage);
 	}
 }
@@ -484,6 +486,20 @@ void ACharactor_WhiteMan::HideCameraIfCharacterClose()
 		if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
 		{
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+		}
+	}
+}
+
+void ACharactor_WhiteMan::SpawnDefaultWeapon()
+{
+	AGameMode_Character* GameMode = Cast<AGameMode_Character>(UGameplayStatics::GetGameMode(this));
+	UWorld* World = GetWorld();
+	if (GameMode && World && !bElimmed && DefaultWeaponClass)
+	{
+		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+		if (Combat)
+		{
+			Combat->EquipWeapon(StartingWeapon);
 		}
 	}
 }

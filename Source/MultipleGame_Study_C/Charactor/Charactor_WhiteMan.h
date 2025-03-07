@@ -128,6 +128,12 @@ private:
 	UPROPERTY()
 	class APlayerState_Character* CharacterPlayerState;
 
+private:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+	void SpawnDefaultWeapon();
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();

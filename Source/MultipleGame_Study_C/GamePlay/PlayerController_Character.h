@@ -30,6 +30,7 @@ public:
 	virtual void ReceivedPlayer() override;
 	void CheckTimeSync(float DeltaTime);
 	void OnMatchStateSet(FName State);
+	void CheckPing(float DeltaTime);
 protected:
 	virtual void BeginPlay() override;
 
@@ -48,6 +49,8 @@ protected:
 	float TimeSyncFrequency = 5.f;
 
 	float TimeSysncRunningTime = 0.f;
+
+	void HighPingWarning(bool bWarning);
 private:
 	class AHUD_Character* CharacterHUD;
 	class ACharactor_WhiteMan* Character_WhiteMan;
@@ -63,4 +66,15 @@ private:
 
 	UPROPERTY()
 	class UCharacterOverlay* CharacterOverlay;
+
+	float HighPingRunningTime = 0.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float HighPingDuration = 5.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float CheckPingFrequency = 20.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float HighPingThreshold = 50.f;
 };

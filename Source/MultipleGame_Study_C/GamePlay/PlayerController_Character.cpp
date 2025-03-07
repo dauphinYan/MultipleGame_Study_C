@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "PlayerController_Character.h"
 #include "MultipleGame_Study_C/HUD/HUD_Character.h"
 #include "MultipleGame_Study_C/HUD/CharacterOverlay.h"
@@ -8,13 +5,35 @@
 #include "Components/TextBlock.h"
 #include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
 #include "Net/UnrealNetwork.h"
-#include "MultipleGame_Study_C/GamePlay/GameMode_Character.h"
+#include "GameMode_Character.h"
+#include "PlayerState_Character.h"
+#include "Components/Image.h"
 
 void APlayerController_Character::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APlayerController_Character, MatchState);
+}
+
+void APlayerController_Character::BeginPlay()
+{
+	Super::BeginPlay();
+
+	CharacterHUD = Cast<AHUD_Character>(GetHUD());
+	if (CharacterHUD)
+	{
+
+	}
+}
+
+void APlayerController_Character::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	SetHUDTime();
+	CheckTimeSync(DeltaTime);
+	CheckPing(DeltaTime);
 }
 
 void APlayerController_Character::OnPossess(APawn* InPawn)
@@ -26,21 +45,6 @@ void APlayerController_Character::OnPossess(APawn* InPawn)
 	{
 		SetHUDHealth(Character_WhiteMan->GetCurHealth(), Character_WhiteMan->GetMaxHealth());
 	}
-}
-
-void APlayerController_Character::BeginPlay()
-{
-	Super::BeginPlay();
-
-	CharacterHUD = Cast<AHUD_Character>(GetHUD());
-}
-
-void APlayerController_Character::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	SetHUDTime();
-	CheckTimeSync(DeltaTime);
 }
 
 void APlayerController_Character::CheckTimeSync(float DeltaTime)
@@ -66,6 +70,20 @@ void APlayerController_Character::OnMatchStateSet(FName State)
 			CharacterHUD->AddCharacterOverlay();
 			PollInit();
 		}
+	}
+}
+
+void APlayerController_Character::CheckPing(float DeltaTime)
+{
+	HighPingRunningTime += DeltaTime;
+	if (HighPingRunningTime > CheckPingFrequency)
+	{
+		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState_Character>() : PlayerState;
+		if (PlayerState)
+		{
+			HighPingWarning(PlayerState->GetPingInMilliseconds() > HighPingThreshold);
+		}
+		HighPingRunningTime = 0.f;
 	}
 }
 
@@ -108,6 +126,33 @@ void APlayerController_Character::Client_ReportServerTime_Implementation(float T
 	float CurrentServerTime = TimeServerReceivedClientRequest + (0.5f * RoundTripTime);
 	//ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
 	ClientServerDelta = FMath::Lerp(ClientServerDelta, CurrentServerTime - GetWorld()->GetTimeSeconds(), 0.1f);
+}
+
+void APlayerController_Character::HighPingWarning(bool bWarning)
+{
+	if (CharacterHUD == nullptr)
+	{
+		CharacterHUD = Cast<AHUD_Character>(GetHUD());
+	}
+
+	if (CharacterHUD
+		&& CharacterHUD->CharacterOverlay
+		&& CharacterHUD->CharacterOverlay->HighPingImage
+		&& CharacterHUD->CharacterOverlay->HighPingAnimation)
+	{
+		if (bWarning)
+		{
+			CharacterHUD->CharacterOverlay->PlayAnimation(CharacterHUD->CharacterOverlay->HighPingAnimation);
+		}
+		else
+		{
+			if (CharacterHUD->CharacterOverlay->IsAnimationPlaying(CharacterHUD->CharacterOverlay->HighPingAnimation))
+			{
+				CharacterHUD->CharacterOverlay->StopAnimation(CharacterHUD->CharacterOverlay->HighPingAnimation);
+			}
+			CharacterHUD->CharacterOverlay->HighPingImage->SetOpacity(0.f);
+		}
+	}
 }
 
 void APlayerController_Character::SetHUDHealth(float Health, float MaxHealth)

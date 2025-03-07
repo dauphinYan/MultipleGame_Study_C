@@ -13,7 +13,7 @@ UCLASS()
 class MULTIPLEGAME_STUDY_C_API UCharacterOverlay : public UUserWidget
 {
 	GENERATED_BODY()
-	 
+
 
 public:
 	UPROPERTY(meta = (BindWidget))
@@ -34,6 +34,12 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CarriedAmmoAmountText;
 
-	UPROPERTY(meta=(BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MatchCountdownText;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* HighPingImage;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+	UWidgetAnimation* HighPingAnimation;
 };
