@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -20,6 +18,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+
 	void PlayFireMontage(bool bIsAiming);
 	void PlayElimMontage();
 	void PlayReloadMontage();
@@ -32,6 +31,9 @@ public:
 	void ShowSniperScopeWidget(bool bShowScope);
 
 	void UpdateHealth();
+
+	UPROPERTY()
+	TMap<FName, class UBoxComponent*> HitCollisionBoxes;
 
 protected:
 	virtual void BeginPlay() override;
@@ -58,6 +60,21 @@ protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamageActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* head;
+
+	UPROPERTY(EditDefaultsOnly)
+	UBoxComponent* pelvis;
+
+	UPROPERTY(EditDefaultsOnly)
+	UBoxComponent* spine_03;
+
+	UPROPERTY(EditDefaultsOnly)
+	UBoxComponent* chlf_r;
+
+	UPROPERTY(EditDefaultsOnly)
+	UBoxComponent* chlf_l;
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Camera)
 	class USpringArmComponent* CameraSpringArm;
@@ -71,11 +88,20 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBuffComponent* Buff;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class ULagCompensationComponent* LagCompensation;
+
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	class AWeapon* OverlappingWeapon;
 
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
+
+	UPROPERTY()
+	class APlayerController_Character* CharacterPlayerController;
+
+	UPROPERTY()
+	class APlayerState_Character* CharacterPlayerState;
 
 	UFUNCTION(Server, Reliable)
 	void Server_EquipButtonPressed();
@@ -114,19 +140,12 @@ private:
 	UFUNCTION()
 	void OnRep_CurHealth(float LastHealth);
 
-	UPROPERTY()
-	class APlayerController_Character* CharacterPlayerController;
-
 	bool bElimmed = false;
-
 	FTimerHandle ElimTimer;
 	UPROPERTY(EditDefaultsOnly)
 	float ElimDelay = 3.f;
 
 	void ElimTimerFinished();
-
-	UPROPERTY()
-	class APlayerState_Character* CharacterPlayerState;
 
 private:
 	UPROPERTY(EditDefaultsOnly)
@@ -149,4 +168,5 @@ public:
 	ECombatState GetCombatState() const;
 	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
 	FORCEINLINE UBuffComponent* GetBuff() const { return Buff; }
+	FORCEINLINE ULagCompensationComponent* GetLagCompensation() const { return LagCompensation; }
 };

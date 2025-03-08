@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "HUD_Character.h"
 #include "CharacterOverlay.h"
 
@@ -8,7 +5,6 @@ void AHUD_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//AddCharacterOverlay();
 }
 
 void AHUD_Character::AddCharacterOverlay()

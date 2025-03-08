@@ -19,6 +19,8 @@
 #include "MultipleGame_Study_C/GamePlay/PlayerState_Character.h"
 #include "MultipleGame_Study_C/Weapon/WeaponTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/BoxComponent.h"
+#include "MultipleGame_Study_C/Component/LagCompensationComponent.h"
 
 ACharactor_WhiteMan::ACharactor_WhiteMan()
 {
@@ -45,12 +47,39 @@ ACharactor_WhiteMan::ACharactor_WhiteMan()
 	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
 	Buff->SetIsReplicated(true);
 
+	LagCompensation = CreateDefaultSubobject<ULagCompensationComponent>(TEXT("LagCompensation"));
+
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+
+	head = CreateDefaultSubobject<UBoxComponent>(TEXT("head"));
+	head->SetupAttachment(GetMesh(), FName("head"));
+	head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("head"), head);
+
+	pelvis = CreateDefaultSubobject<UBoxComponent>(TEXT("pelvis"));
+	pelvis->SetupAttachment(GetMesh(), FName("pelvis"));
+	pelvis->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("pelvis"), pelvis);
+
+	spine_03 = CreateDefaultSubobject<UBoxComponent>(TEXT("spine_03"));
+	spine_03->SetupAttachment(GetMesh(), FName("spine_03"));
+	spine_03->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("spine_03"), spine_03);
+
+	chlf_r = CreateDefaultSubobject<UBoxComponent>(TEXT("chlf_r"));
+	chlf_r->SetupAttachment(GetMesh(), FName("chlf_r"));
+	chlf_r->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("chlf_r"), chlf_r);
+
+	chlf_l = CreateDefaultSubobject<UBoxComponent>(TEXT("chlf_l"));
+	chlf_l->SetupAttachment(GetMesh(), FName("chlf_l"));
+	chlf_l->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HitCollisionBoxes.Add(FName("chlf_l"), chlf_l);
 }
 
 void ACharactor_WhiteMan::BeginPlay()
@@ -137,6 +166,14 @@ void ACharactor_WhiteMan::PostInitializeComponents()
 	{
 		Buff->Character = this;
 		Buff->SetInitialSpeed(GetCharacterMovement()->MaxWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched);
+	}
+	if (LagCompensation)
+	{
+		LagCompensation->Character = this;
+		if (Controller)
+		{
+			LagCompensation->Controller = Cast<APlayerController_Character>(Controller);
+		}
 	}
 }
 
@@ -390,10 +427,10 @@ void ACharactor_WhiteMan::AimOffset(float DeltaTime)
 		return;
 	FVector velocity = GetVelocity();
 	velocity.Z = 0.f;
-	float speed = velocity.Size();
+	float Speed = velocity.Size();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
-	if (speed == 0.f && !bIsInAir)
+	if (Speed == 0.f && !bIsInAir)
 	{
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartAimRotation);
@@ -401,7 +438,7 @@ void ACharactor_WhiteMan::AimOffset(float DeltaTime)
 		bUseControllerRotationYaw = false;
 	}
 
-	if (speed > 0.f || bIsInAir)
+	if (Speed > 0.f || bIsInAir)
 	{
 		StartAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		AO_Yaw = 0.f;
