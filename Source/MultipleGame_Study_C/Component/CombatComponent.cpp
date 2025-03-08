@@ -166,6 +166,19 @@ void UCombatComponent::Reload()
 	}
 }
 
+void UCombatComponent::Server_Reload_Implementation()
+{
+	if (Character_WhiteMan == nullptr || EquippedWeapon == nullptr) return;
+
+	CombatState = ECombatState::ECS_Reloading;
+	HandleReload();
+}
+
+void UCombatComponent::HandleReload()
+{
+	Character_WhiteMan->PlayReloadMontage();
+}
+
 void UCombatComponent::FinishReloading()
 {
 	if (Character_WhiteMan == nullptr) return;
@@ -178,19 +191,6 @@ void UCombatComponent::FinishReloading()
 	{
 		Fire();
 	}
-}
-
-void UCombatComponent::Server_Reload_Implementation()
-{
-	if (Character_WhiteMan == nullptr || EquippedWeapon == nullptr) return;
-
-	CombatState = ECombatState::ECS_Reloading;
-	HandleReload();
-}
-
-void UCombatComponent::HandleReload()
-{
-	Character_WhiteMan->PlayReloadMontage();
 }
 
 int32 UCombatComponent::AmountToReload()
@@ -235,7 +235,7 @@ void UCombatComponent::UpdateAmmoValues()
 	{
 		PlayerController->SetHUDCarriedAmmo(CarriedAmmo);
 	}
-	EquippedWeapon->AddAmmo(-ReloadAmount);
+	EquippedWeapon->AddAmmo(ReloadAmount);
 }
 
 void UCombatComponent::OnRep_CombatState()
@@ -260,7 +260,7 @@ void UCombatComponent::OnRep_CombatState()
 
 void UCombatComponent::SetAiming(bool bAiming)
 {
-	this->bIsAiming = bAiming;
+	bIsAiming = bAiming;
 	Server_SetAiming(bAiming);
 	if (Character_WhiteMan)
 	{
@@ -271,12 +271,21 @@ void UCombatComponent::SetAiming(bool bAiming)
 			Character_WhiteMan->ShowSniperScopeWidget(bAiming);
 		}
 	}
+	if (Character_WhiteMan->IsLocallyControlled())
+		bAimButtonPressed = bAiming;
+}
 
+void UCombatComponent::OnRep_bIsAiming()
+{
+	if (Character_WhiteMan && Character_WhiteMan->IsLocallyControlled())
+	{
+		bIsAiming = bAimButtonPressed;
+	}
 }
 
 void UCombatComponent::Server_SetAiming_Implementation(bool bAiming)
 {
-	this->bIsAiming = bAiming;
+	bIsAiming = bAiming;
 	if (Character_WhiteMan)
 	{
 		Character_WhiteMan->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;

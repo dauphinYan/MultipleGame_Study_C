@@ -95,8 +95,13 @@ private:
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_bIsAiming)
 	bool bIsAiming;
+
+	bool bAimButtonPressed = false;
+
+	UFUNCTION()
+	void OnRep_bIsAiming();
 
 	UPROPERTY(EditAnyWhere)
 	float BaseWalkSpeed;

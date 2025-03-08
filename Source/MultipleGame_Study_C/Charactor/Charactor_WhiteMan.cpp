@@ -66,6 +66,15 @@ void ACharactor_WhiteMan::BeginPlay()
 	}
 }
 
+void ACharactor_WhiteMan::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	AimOffset(DeltaTime);
+	HideCameraIfCharacterClose();
+	PollInit();
+}
+
 void ACharactor_WhiteMan::PollInit()
 {
 	if (CharacterPlayerState == nullptr)
@@ -88,14 +97,6 @@ void ACharactor_WhiteMan::UpdateHealth()
 	}
 }
 
-void ACharactor_WhiteMan::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	AimOffset(DeltaTime);
-	HideCameraIfCharacterClose();
-	PollInit();
-}
 
 void ACharactor_WhiteMan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

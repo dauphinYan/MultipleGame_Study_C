@@ -38,7 +38,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AWeapon, WeaponState);
-	DOREPLIFETIME(AWeapon, Ammo);
 }
 
 void AWeapon::BeginPlay()
@@ -59,6 +58,12 @@ void AWeapon::BeginPlay()
 	}
 }
 
+void AWeapon::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
 void AWeapon::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ACharactor_WhiteMan* Character_WhiteMan = Cast<ACharactor_WhiteMan>(OtherActor);
@@ -77,6 +82,14 @@ void AWeapon::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 	}
 }
 
+void AWeapon::ShowPickupWidget(bool bShow)
+{
+	if (PickupWidget)
+	{
+		PickupWidget->SetVisibility(bShow);
+	}
+}
+
 void AWeapon::SetHUDAmmo()
 {
 	OwnerCharacter = OwnerCharacter == nullptr ? Cast<ACharactor_WhiteMan>(GetOwner()) : OwnerCharacter;
@@ -87,32 +100,6 @@ void AWeapon::SetHUDAmmo()
 		{
 			CharacterOwnerController->SetHUDWeaponAmmo(Ammo);
 		}
-	}
-}
-
-void AWeapon::SpendRound()
-{
-	Ammo = FMath::Clamp(Ammo - 1, 0, MaxCapacity);
-	SetHUDAmmo();
-}
-
-void AWeapon::OnRep_Ammo()
-{
-	SetHUDAmmo();
-}
-
-void AWeapon::OnRep_Owner()
-{
-	Super::OnRep_Owner();
-
-	if (Owner == nullptr)
-	{
-		OwnerCharacter = nullptr;
-		CharacterOwnerController = nullptr;
-	}
-	else
-	{
-		SetHUDAmmo();
 	}
 }
 
@@ -150,11 +137,6 @@ void AWeapon::SetWeaponState(EWeaponState State)
 	}
 }
 
-bool AWeapon::IsEmpty()
-{
-	return Ammo <= 0;
-}
-
 void AWeapon::OnRep_WeaponState()
 {
 	switch (WeaponState)
@@ -180,20 +162,6 @@ void AWeapon::OnRep_WeaponState()
 		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		break;
-	}
-}
-
-void AWeapon::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-void AWeapon::ShowPickupWidget(bool bShow)
-{
-	if (PickupWidget)
-	{
-		PickupWidget->SetVisibility(bShow);
 	}
 }
 
@@ -225,6 +193,43 @@ void AWeapon::Fire(const FVector& HitTarget)
 	SpendRound();
 }
 
+void AWeapon::SpendRound()
+{
+	Ammo = FMath::Clamp(Ammo - 1, 0, MaxCapacity);
+	SetHUDAmmo();
+	if (HasAuthority())
+	{
+		Client_UpdateAmmo(Ammo);
+	}
+	else
+	{
+		++Sequence;
+	}
+}
+
+void AWeapon::Client_UpdateAmmo_Implementation(int32 ServerAmmo)
+{
+	if (HasAuthority()) return;
+	Ammo = ServerAmmo;
+	--Sequence;
+	Ammo -= Sequence;
+	SetHUDAmmo();
+}
+
+void AWeapon::Client_AddAmmo_Implementation(int32 AmmoToAdd)
+{
+	if (HasAuthority()) return;
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MaxCapacity);
+	SetHUDAmmo();
+}
+
+void AWeapon::AddAmmo(int32 AmmoToAdd)
+{
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MaxCapacity);
+	SetHUDAmmo();
+	Client_AddAmmo(AmmoToAdd);
+}
+
 void AWeapon::Droppped()
 {
 	SetWeaponState(EWeaponState::EWS_Dropped);
@@ -235,9 +240,22 @@ void AWeapon::Droppped()
 	CharacterOwnerController = nullptr;
 }
 
-void AWeapon::AddAmmo(int32 AmmoToAdd)
+bool AWeapon::IsEmpty()
 {
-	Ammo = FMath::Clamp(Ammo - AmmoToAdd, 0, MaxCapacity);
-	SetHUDAmmo();
+	return Ammo <= 0;
 }
 
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+
+	if (Owner == nullptr)
+	{
+		OwnerCharacter = nullptr;
+		CharacterOwnerController = nullptr;
+	}
+	else
+	{
+		SetHUDAmmo();
+	}
+}

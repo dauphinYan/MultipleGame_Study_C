@@ -88,22 +88,28 @@ private:
 	UFUNCTION()
 	void OnRep_WeaponState();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	class UAnimationAsset* FireAnimation;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ACasing> CasingClass;
 
-	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
+	UPROPERTY(EditDefaultsOnly)
 	int32 Ammo;
 
-	UFUNCTION()
-	void OnRep_Ammo();
+	UFUNCTION(Client, Reliable)
+	void Client_UpdateAmmo(int32 ServerAmmo);
+
+	UFUNCTION(Client, Reliable)
+	void Client_AddAmmo(int32 AmmoToAdd);
 
 	void SpendRound();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	int32 MaxCapacity;
+
+	//The number of unprocessed server requests for Ammo.
+	int32 Sequence = 0;
 
 	UPROPERTY()
 	class APlayerController_Character* CharacterOwnerController;

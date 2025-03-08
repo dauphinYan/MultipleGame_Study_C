@@ -21,10 +21,6 @@ void APlayerController_Character::BeginPlay()
 	Super::BeginPlay();
 
 	CharacterHUD = Cast<AHUD_Character>(GetHUD());
-	if (CharacterHUD)
-	{
-
-	}
 }
 
 void APlayerController_Character::Tick(float DeltaTime)
