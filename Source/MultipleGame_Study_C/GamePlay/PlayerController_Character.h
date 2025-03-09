@@ -22,6 +22,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void OnMatchStateSet(FName State);
+	float SingleTripTime = 0.f;
+
 protected:
 	virtual void BeginPlay() override;
 	void PollInit();

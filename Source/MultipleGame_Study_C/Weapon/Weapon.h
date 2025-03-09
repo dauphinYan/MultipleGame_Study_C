@@ -72,6 +72,18 @@ protected:
 	UFUNCTION()
 	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	UPROPERTY(EditDefaultsOnly)
+	float Damage = 20.f;
+
+	UPROPERTY(EditAnywhere)
+	bool bUseServerSideRewind = false;
+
+	UPROPERTY()
+	class APlayerController_Character* CharacterOwnerController;
+
+	UPROPERTY()
+	class ACharactor_WhiteMan* OwnerCharacter;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	class USphereComponent* Sphere;
@@ -111,12 +123,6 @@ private:
 	//The number of unprocessed server requests for Ammo.
 	int32 Sequence = 0;
 
-	UPROPERTY()
-	class APlayerController_Character* CharacterOwnerController;
-
-	UPROPERTY()
-	class ACharactor_WhiteMan* OwnerCharacter;
-
 	virtual void OnRep_Owner() override;
 
 	UPROPERTY(EditAnywhere)
@@ -131,4 +137,5 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 	FORCEINLINE int32 GetAmmo() const { return Ammo; }
 	FORCEINLINE int32 GetMaxCapacity() const { return MaxCapacity; }
+	FORCEINLINE int32 GetDamage() const { return Damage; }
 };

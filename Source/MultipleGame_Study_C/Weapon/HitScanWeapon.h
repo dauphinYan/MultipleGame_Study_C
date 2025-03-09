@@ -39,9 +39,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	USoundCue* HitSound;
 
-	UPROPERTY(EditDefaultsOnly)
-	float Damage = 20.f;
-
 private:
 	UPROPERTY(EditDefaultsOnly)
 	UParticleSystem* MuzzleFlash;

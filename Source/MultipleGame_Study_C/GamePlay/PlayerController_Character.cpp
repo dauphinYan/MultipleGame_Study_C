@@ -123,7 +123,8 @@ void APlayerController_Character::Server_RequestServerTime_Implementation(float 
 void APlayerController_Character::Client_ReportServerTime_Implementation(float TimeOfClientRequest, float TimeServerReceivedClientRequest)
 {
 	float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
-	float CurrentServerTime = TimeServerReceivedClientRequest + (0.5f * RoundTripTime);
+	SingleTripTime = (0.5f * RoundTripTime);
+	float CurrentServerTime = TimeServerReceivedClientRequest + SingleTripTime;
 	ClientServerDelta = FMath::Lerp(ClientServerDelta, CurrentServerTime - GetWorld()->GetTimeSeconds(), 0.1f);
 }
 

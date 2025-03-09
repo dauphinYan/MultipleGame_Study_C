@@ -4,11 +4,13 @@
 #include "HitScanWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "MultipleGame_Study_C/Charactor/Charactor_WhiteMan.h"
+#include "MultipleGame_Study_C/GamePlay/PlayerController_Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "MultipleGame_Study_C/Component/LagCompensationComponent.h"
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
@@ -26,16 +28,34 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		FHitResult FireHit;
 		WeaponTraceHit(Start, HitTarget, FireHit);
 
-		ACharactor_WhiteMan* Charactor_WhiteMan = Cast<ACharactor_WhiteMan>(FireHit.GetActor());
-		if (Charactor_WhiteMan && HasAuthority() && InstigatorController)
+		ACharactor_WhiteMan* Character_WhiteMan = Cast<ACharactor_WhiteMan>(FireHit.GetActor());
+		if (Character_WhiteMan && InstigatorController)
 		{
-			UGameplayStatics::ApplyDamage(
-				Charactor_WhiteMan,
-				Damage,
-				InstigatorController,
-				this,
-				UDamageType::StaticClass()
-			);
+			if (HasAuthority() && !bUseServerSideRewind)
+			{
+				UGameplayStatics::ApplyDamage(
+					Character_WhiteMan,
+					Damage,
+					InstigatorController,
+					this,
+					UDamageType::StaticClass()
+				);
+			}
+			else if (!HasAuthority() && bUseServerSideRewind)
+			{
+				OwnerCharacter = OwnerCharacter == nullptr ? Cast<ACharactor_WhiteMan>(OwnerPawn) : OwnerCharacter;
+				CharacterOwnerController = CharacterOwnerController == nullptr ? Cast<APlayerController_Character>(InstigatorController) : CharacterOwnerController;
+				if (OwnerCharacter && CharacterOwnerController && OwnerCharacter->GetLagCompensation())
+				{
+					OwnerCharacter->GetLagCompensation()->Server_ScoreRequest(
+						Character_WhiteMan,
+						Start,
+						HitTarget,
+						CharacterOwnerController->GetServerTime() - CharacterOwnerController->SingleTripTime,
+						this
+					);
+				}
+			}
 		}
 		if (ImpactParticles)
 		{
